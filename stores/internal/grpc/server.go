@@ -88,6 +88,22 @@ func (s server) DisableParticipation(ctx context.Context, request *pb.DisablePar
 	return &pb.DisableParticipationResponse{}, nil
 }
 
+func (s server) GetParticipatingStores(ctx context.Context, query *pb.GetParticipatingStoresRequest) (*pb.GetParticipatingStoresResponse, error) {
+	stores, err := s.app.GetParticipatingStores(ctx, queries.GetParticipatingStores{})
+	if err != nil {
+		return nil, err
+	}
+
+	protoStores := []*pb.Store{}
+	for _, store := range stores {
+		protoStores = append(protoStores, s.storeFromDomain(store))
+	}
+
+	return &pb.GetParticipatingStoresResponse{
+		Stores: protoStores,
+	}, nil
+}
+
 func (s server) storeFromDomain(store *domain.Store) *pb.Store {
 	return &pb.Store{
 		Id:            store.ID,

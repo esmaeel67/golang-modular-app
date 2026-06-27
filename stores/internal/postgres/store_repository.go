@@ -45,6 +45,7 @@ func (r StoreRepository) FindAll(ctx context.Context) (stores []*domain.Store, e
 		err := rows.Close()
 		if err != nil {
 			err = errors.Wrap(err, "closing store rows")
+			fmt.Printf("StoreRepository:FindAll: %v", err)
 		}
 	}(rows)
 
@@ -60,16 +61,18 @@ func (r StoreRepository) FindAll(ctx context.Context) (stores []*domain.Store, e
 }
 
 func (r StoreRepository) FindParticipatingStores(ctx context.Context) (stores []*domain.Store, err error) {
-
 	const query = "SELECT id, name, location, participating FROM %s WHERE participating IS true"
+
 	rows, err := r.db.QueryContext(ctx, r.table(query))
 	if err != nil {
 		return nil, errors.Wrap(err, "querying participating stores")
 	}
+
 	defer func(rows *sql.Rows) {
 		err := rows.Close()
 		if err != nil {
 			err = errors.Wrap(err, "closing participating store rows")
+			fmt.Printf("StoreRepository:FindAll: %v", err)
 		}
 	}(rows)
 

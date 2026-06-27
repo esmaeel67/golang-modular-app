@@ -67,6 +67,7 @@ func (r ProductRepository) GetCatalog(ctx context.Context, storeID string) ([]*d
 		err := rows.Close()
 		if err != nil {
 			err = errors.Wrap(err, "closing product rows")
+			fmt.Printf("ProductRepository:FindAll: %v", err)
 		}
 	}(rows)
 

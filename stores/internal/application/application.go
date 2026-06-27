@@ -21,6 +21,7 @@ type (
 	Queries interface {
 		GetStore(ctx context.Context, query queries.GetStore) (*domain.Store, error)
 		GetStores(ctx context.Context, query queries.GetStores) ([]*domain.Store, error)
+		GetParticipatingStores(ctx context.Context, query queries.GetParticipatingStores) ([]*domain.Store, error)
 	}
 	Application struct {
 		appCommands
@@ -34,6 +35,7 @@ type (
 	appQueries struct {
 		queries.GetStoreHandler
 		queries.GetStoresHandler
+		queries.GetParticipatingStoriesHandler
 	}
 )
 
@@ -47,8 +49,9 @@ func New(stores domain.StoreRepository, participatingStores domain.Participating
 			DisableParticipationHandler: commands.NewDisableParticipationHandler(stores),
 		},
 		appQueries: appQueries{
-			GetStoreHandler:  queries.NewGetStoreHandler(stores),
-			GetStoresHandler: queries.NewGetStoresHandler(stores),
+			GetStoreHandler:                queries.NewGetStoreHandler(stores),
+			GetStoresHandler:               queries.NewGetStoresHandler(stores),
+			GetParticipatingStoriesHandler: queries.NewGetParticipatingStoresHandler(participatingStores),
 		},
 	}
 }
