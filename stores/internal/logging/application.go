@@ -57,3 +57,16 @@ func (a Application) GetStores(ctx context.Context, query queries.GetStores) (st
 	return a.App.GetStores(ctx, query)
 
 }
+
+func (a Application) EnableParticipation(ctx context.Context, cmd commands.EnableParticipation) (err error) {
+	a.logger.Info(logger.Stores, logger.EnableParticipation, "--> Stores.EnableParticipation", nil)
+	defer func() {
+		if err != nil {
+			a.logger.Info(logger.Stores, logger.EnableParticipation, errors.Wrap(err, "<-- Stores.EnableParticipation").Error(), nil)
+			return
+		}
+		a.logger.Info(logger.Stores, logger.EnableParticipation, "<-- Stores.EnableParticipation", nil)
+	}()
+
+	return a.App.EnableParticipation(ctx, cmd)
+}
