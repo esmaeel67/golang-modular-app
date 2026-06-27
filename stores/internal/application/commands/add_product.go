@@ -37,6 +37,6 @@ func (h AddProductHandler) AddProduct(ctx context.Context, cmd AddProduct) error
 		return errors.Wrap(err, "error adding product")
 	}
 
-	return errors.Wrap(h.Products.AddProduct(ctx, product), "error adding product")
+	return errors.Wrap(h.products.AddProduct(ctx, product), "error adding product")
 
 }
