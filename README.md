@@ -35,3 +35,16 @@ cp .env.example .env
 
 # Build the application
 go build -o bin/app cmd/app/main.go
+
+
+# Lint your protobuf files
+buf lint
+
+# Check for breaking changes (compare to git main branch)
+buf breaking --against '.git#branch=main'
+
+# Format your proto files
+buf format -w
+
+# Build your module (validates all files)
+buf build

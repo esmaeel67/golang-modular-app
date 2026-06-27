@@ -13,6 +13,8 @@ const (
 	Validation      Category = "Validation"
 	RequestResponse Category = "RequestResponse"
 	Prometheus      Category = "Prometheus"
+	Baskets         Category = "Baskets"
+	Stores          Category = "Stores"
 )
 
 const (
@@ -39,6 +41,20 @@ const (
 
 	// IO
 	RemoveFile SubCategory = "RemoveFile"
+
+	// basket sub category
+	StartBasket      SubCategory = "StartBasket"
+	CancelBasket     SubCategory = "CancelBasket"
+	CheckoutBasket   SubCategory = "CheckoutBasket"
+	BasketAddItem    SubCategory = "BasketAddItem"
+	BasketRemoveItem SubCategory = "BasketRemoveItem"
+	GetBasket        SubCategory = "GetBasket"
+
+	// Stores
+	CreateStore            SubCategory = "CreateStore"
+	GetStore               SubCategory = "GetStore"
+	GetStores              SubCategory = "GetStores"
+	GetParticipatingStores SubCategory = "GetParticipatingStores"
 )
 
 const (
