@@ -1,0 +1,236 @@
+# ========================================
+# Environment Variables
+# ========================================
+.env
+.env.local
+.env.*.local
+.env.development
+.env.production
+.env.test
+.env.staging
+.env.example
+*.env
+
+# ========================================
+# Logs
+# ========================================
+logs/
+*.log
+*.log.*
+log/
+*.log.*
+*.out
+*.err
+error.log
+access.log
+app.log
+debug.log
+*.log.gz
+
+# ========================================
+# Go Specific
+# ========================================
+# Binaries
+/bin/
+/dist/
+/build/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+*.prof
+
+# Dependency directories
+/vendor/
+/node_modules/
+
+# Coverage
+*.coverprofile
+*.out
+*.cov
+*.coverage
+*.html
+
+# Profiling
+*.cpu
+*.mem
+*.pprof
+*.trace
+
+# Go workspace
+/go.sum
+go.work
+go.work.sum
+
+# ========================================
+# IDE / Editor
+# ========================================
+# VSCode
+.vscode/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# IntelliJ / GoLand
+.idea/
+*.iml
+*.iws
+*.ipr
+.idea_modules/
+
+# Vim
+*.swp
+*.swo
+*~
+*.un~
+.~*
+._*
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# Sublime Text
+*.sublime-workspace
+*.sublime-project
+
+# ========================================
+# OS Specific
+# ========================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.directory
+.Trash-*
+
+# ========================================
+# Docker
+# ========================================
+.docker/
+docker-compose.override.yml
+*.dockerignore
+
+# ========================================
+# Terraform
+# ========================================
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+
+# ========================================
+# Kubernetes
+# ========================================
+*.kubeconfig
+*.kubeconfig.*
+*.secret.yaml
+*.secret.yml
+
+# ========================================
+# Database
+# ========================================
+*.db
+*.sqlite
+*.sqlite3
+*.dump
+*.sql.gz
+
+# ========================================
+# Temporary Files
+# ========================================
+tmp/
+temp/
+*.tmp
+*.temp
+*.cache
+*.cached
+*.bak
+*.backup
+*.old
+
+# ========================================
+# Proto Generated (Optional)
+# ========================================
+# Uncomment if you regenerate proto files on build
+# *.pb.go
+# *_grpc.pb.go
+# *_mock.go
+
+# ========================================
+# Application Specific
+# ========================================
+# Configuration with secrets
+config/secrets.yaml
+config/secrets.yml
+secrets/
+*.secret
+*.private
+
+# Certificates
+*.crt
+*.key
+*.pem
+*.p12
+*.pfx
+*.cert
+*.pub
+
+# Uploads
+uploads/
+media/
+files/
+data/
+
+# ========================================
+# Testing
+# ========================================
+coverage/
+*.cover
+*.test
+*.bench
+*.profile
+
+# ========================================
+# Build artifacts
+# ========================================
+*.so
+*.dylib
+*.dll
+*.exe
+*.test
+*.prof
+*.pprof
+*.trace
+
+# Delve debugger files
+__debug_bin
+__debug_bin*
+debug.test
+debug.exe
