@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"database/sql"
+	"fmt"
 
 	"github.com/esmaeel67/golang-modular-app/stores/internal/domain"
 	"github.com/stackus/errors"
@@ -23,9 +24,9 @@ func NewParticipatingStoryRepository(tableName string, db *sql.DB) Participating
 }
 
 func (r ParticipatingStoreRepository) FindAll(ctx context.Context) (stores []*domain.Store, err error) {
-	const query = "SLECT id, name, location, participating FROM %s WHERE participating IS true"
+	const query = "SELECT id, name, location, participating FROM %s WHERE participating IS true"
 
-	rows, err := r.db.QueryContext(ctx, r.tableName)
+	rows, err := r.db.QueryContext(ctx, r.table(query))
 	if err != nil {
 		return nil, errors.Wrap(err, "querying participating stores")
 	}
@@ -33,6 +34,7 @@ func (r ParticipatingStoreRepository) FindAll(ctx context.Context) (stores []*do
 		err := rows.Close()
 		if err != nil {
 			err = errors.Wrap(err, "closing participating store rows")
+			fmt.Printf("ParticipatingStoreRepository:FindAll: %v", err)
 		}
 	}(rows)
 
@@ -46,4 +48,7 @@ func (r ParticipatingStoreRepository) FindAll(ctx context.Context) (stores []*do
 	}
 	return stores, nil
 
+}
+func (r ParticipatingStoreRepository) table(query string) string {
+	return fmt.Sprintf(query, r.tableName)
 }
