@@ -20,7 +20,7 @@ type Logger interface {
 	Fatalf(template string, args ...interface{})
 }
 
-func NewLogger(cfg config.AppConfig) Logger {
+func NewLogger(cfg *config.AppConfig) Logger {
 
-	return nil
+	return newZapLogger(cfg)
 }
