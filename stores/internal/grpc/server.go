@@ -126,6 +126,32 @@ func (s server) RemoveProduct(ctx context.Context, request *pb.RemoveProductRequ
 	return &pb.RemoveProductResponse{}, err
 }
 
+func (s server) GetCatalog(ctx context.Context, request *pb.GetCatalogRequest) (*pb.GetCatalogResponse, error) {
+	products, err := s.app.GetCatalog(ctx, queries.GetCatalogQuery{StoreID: request.GetStoreId()})
+	if err != nil {
+		return nil, err
+	}
+
+	protoProducts := []*pb.Product{}
+	for _, product := range products {
+		protoProducts = append(protoProducts, s.productFromDomain(product))
+	}
+
+	return &pb.GetCatalogResponse{
+		Products: protoProducts,
+	}, nil
+}
+
+func (s server) GetProduct(ctx context.Context, request *pb.GetProductRequest) (*pb.GetProductResponse, error) {
+	product, err := s.app.GetProduct(ctx, queries.GetProductQuery{
+		ID: request.GetId(),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &pb.GetProductResponse{Product: s.productFromDomain(product)}, nil
+}
+
 func (s server) storeFromDomain(store *domain.Store) *pb.Store {
 	return &pb.Store{
 		Id:            store.ID,

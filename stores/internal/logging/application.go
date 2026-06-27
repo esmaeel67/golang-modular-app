@@ -119,3 +119,27 @@ func (a Application) GetParticipatingStores(ctx context.Context, query queries.G
 
 	return a.App.GetParticipatingStores(ctx, query)
 }
+
+func (a Application) GetCatalog(ctx context.Context, query queries.GetCatalogQuery) (products []*domain.Product, err error) {
+	a.logger.Info(logger.Stores, logger.GetCatalog, "--> Stores.GetCatalog", nil)
+	defer func() {
+		if err != nil {
+			a.logger.Info(logger.Stores, logger.GetCatalog, errors.Wrap(err, "<-- Stores.GetCatalog").Error(), nil)
+			return
+		}
+		a.logger.Info(logger.Stores, logger.GetCatalog, "<-- Stores.GetCatalog", nil)
+	}()
+	return a.App.GetCatalog(ctx, query)
+}
+
+func (a Application) GetProduct(ctx context.Context, query queries.GetProductQuery) (product *domain.Product, err error) {
+	a.logger.Info(logger.Stores, logger.GetProduct, "--> Stores.GetProduct", nil)
+	defer func() {
+		if err != nil {
+			a.logger.Info(logger.Stores, logger.GetProduct, errors.Wrap(err, "<-- Stores.GetParticipatingStores").Error(), nil)
+			return
+		}
+		a.logger.Info(logger.Stores, logger.GetProduct, "<-- Stores.GetParticipatingStores", nil)
+	}()
+	return a.App.GetProduct(ctx, query)
+}
