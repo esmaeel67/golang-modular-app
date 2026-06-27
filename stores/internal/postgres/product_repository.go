@@ -47,7 +47,8 @@ func (r ProductRepository) AddProduct(ctx context.Context, product *domain.Produ
 }
 
 func (r ProductRepository) RemoveProduct(ctx context.Context, id string) error {
-	const query = "DELETE FROM %s WHERE id = $1 LIMIT 1"
+	const query = "DELETE FROM %s WHERE id = $1"
+	fmt.Println(r.table(query))
 
 	_, err := r.db.ExecContext(ctx, r.table(query), id)
 

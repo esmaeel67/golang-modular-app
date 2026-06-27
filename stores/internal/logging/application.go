@@ -84,7 +84,7 @@ func (a Application) DisableParticipation(ctx context.Context, cmd commands.Disa
 }
 
 func (a Application) AddProduct(ctx context.Context, cmd commands.AddProduct) (err error) {
-	a.logger.Info(logger.Stores, logger.AddProduct, "--> --> Stores.AddProduct", nil)
+	a.logger.Info(logger.Stores, logger.AddProduct, "--> Stores.AddProduct", nil)
 	defer func() {
 		if err != nil {
 			a.logger.Info(logger.Stores, logger.GetParticipatingStores, errors.Wrap(err, "<-- Stores.AddProduct").Error(), nil)
@@ -93,6 +93,18 @@ func (a Application) AddProduct(ctx context.Context, cmd commands.AddProduct) (e
 		a.logger.Info(logger.Stores, logger.GetParticipatingStores, "<-- Stores.AddProduct", nil)
 	}()
 	return a.App.AddProduct(ctx, cmd)
+}
+
+func (a Application) RemoveProduct(ctx context.Context, cmd commands.RemoveProductCommand) (err error) {
+	a.logger.Info(logger.Stores, logger.AddProduct, "--> Stores.RemoveProduct", nil)
+	defer func() {
+		if err != nil {
+			a.logger.Info(logger.Stores, logger.GetParticipatingStores, errors.Wrap(err, "<-- Stores.RemoveProduct").Error(), nil)
+			return
+		}
+		a.logger.Info(logger.Stores, logger.GetParticipatingStores, "<-- Stores.RemoveProduct", nil)
+	}()
+	return a.App.RemoveProduct(ctx, cmd)
 }
 
 func (a Application) GetParticipatingStores(ctx context.Context, query queries.GetParticipatingStores) (store []*domain.Store, err error) {
@@ -106,4 +118,28 @@ func (a Application) GetParticipatingStores(ctx context.Context, query queries.G
 	}()
 
 	return a.App.GetParticipatingStores(ctx, query)
+}
+
+func (a Application) GetCatalog(ctx context.Context, query queries.GetCatalogQuery) (products []*domain.Product, err error) {
+	a.logger.Info(logger.Stores, logger.GetCatalog, "--> Stores.GetCatalog", nil)
+	defer func() {
+		if err != nil {
+			a.logger.Info(logger.Stores, logger.GetCatalog, errors.Wrap(err, "<-- Stores.GetCatalog").Error(), nil)
+			return
+		}
+		a.logger.Info(logger.Stores, logger.GetCatalog, "<-- Stores.GetCatalog", nil)
+	}()
+	return a.App.GetCatalog(ctx, query)
+}
+
+func (a Application) GetProduct(ctx context.Context, query queries.GetProductQuery) (product *domain.Product, err error) {
+	a.logger.Info(logger.Stores, logger.GetProduct, "--> Stores.GetProduct", nil)
+	defer func() {
+		if err != nil {
+			a.logger.Info(logger.Stores, logger.GetProduct, errors.Wrap(err, "<-- Stores.GetParticipatingStores").Error(), nil)
+			return
+		}
+		a.logger.Info(logger.Stores, logger.GetProduct, "<-- Stores.GetParticipatingStores", nil)
+	}()
+	return a.App.GetProduct(ctx, query)
 }

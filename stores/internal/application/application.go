@@ -18,11 +18,14 @@ type (
 		EnableParticipation(ctx context.Context, cmd commands.EnableParticipation) error
 		DisableParticipation(ctx context.Context, cmd commands.DisableParticipation) error
 		AddProduct(ctx context.Context, cmd commands.AddProduct) error
+		RemoveProduct(ctx context.Context, cmd commands.RemoveProductCommand) error
 	}
 	Queries interface {
 		GetStore(ctx context.Context, query queries.GetStore) (*domain.Store, error)
 		GetStores(ctx context.Context, query queries.GetStores) ([]*domain.Store, error)
 		GetParticipatingStores(ctx context.Context, query queries.GetParticipatingStores) ([]*domain.Store, error)
+		GetCatalog(ctx context.Context, query queries.GetCatalogQuery) ([]*domain.Product, error)
+		GetProduct(ctx context.Context, query queries.GetProductQuery) (*domain.Product, error)
 	}
 	Application struct {
 		appCommands
@@ -33,11 +36,14 @@ type (
 		commands.EnableParticipationHandler
 		commands.DisableParticipationHandler
 		commands.AddProductHandler
+		commands.RemoveProductHandler
 	}
 	appQueries struct {
 		queries.GetStoreHandler
 		queries.GetStoresHandler
 		queries.GetParticipatingStoriesHandler
+		queries.GetCatalogHandler
+		queries.GetProductHandler
 	}
 )
 
@@ -50,11 +56,14 @@ func New(stores domain.StoreRepository, participatingStores domain.Participating
 			EnableParticipationHandler:  commands.NewEnableParticipationHandler(stores),
 			DisableParticipationHandler: commands.NewDisableParticipationHandler(stores),
 			AddProductHandler:           commands.NewAddProductHandler(stores, products),
+			RemoveProductHandler:        commands.NewRemoveProductHandler(stores, products),
 		},
 		appQueries: appQueries{
 			GetStoreHandler:                queries.NewGetStoreHandler(stores),
 			GetStoresHandler:               queries.NewGetStoresHandler(stores),
 			GetParticipatingStoriesHandler: queries.NewGetParticipatingStoresHandler(participatingStores),
+			GetCatalogHandler:              queries.NewGetCatalogHandler(products),
+			GetProductHandler:              queries.NewGetProductHandler(products),
 		},
 	}
 }
