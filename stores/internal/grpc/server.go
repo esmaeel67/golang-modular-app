@@ -119,6 +119,12 @@ func (s server) AddProduct(ctx context.Context, request *pb.AddProductRequest) (
 	}
 	return &pb.AddProductResponse{Id: id}, nil
 }
+func (s server) RemoveProduct(ctx context.Context, request *pb.RemoveProductRequest) (*pb.RemoveProductResponse, error) {
+	err := s.app.RemoveProduct(ctx, commands.RemoveProductCommand{
+		ID: request.GetId(),
+	})
+	return &pb.RemoveProductResponse{}, err
+}
 
 func (s server) storeFromDomain(store *domain.Store) *pb.Store {
 	return &pb.Store{
