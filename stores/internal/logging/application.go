@@ -70,3 +70,15 @@ func (a Application) EnableParticipation(ctx context.Context, cmd commands.Enabl
 
 	return a.App.EnableParticipation(ctx, cmd)
 }
+
+func (a Application) DisableParticipation(ctx context.Context, cmd commands.DisableParticipation) (err error) {
+	a.logger.Info(logger.Stores, logger.DisableParticipation, "--> Stores.DisableParticipation", nil)
+	defer func() {
+		if err != nil {
+			a.logger.Info(logger.Stores, logger.EnableParticipation, errors.Wrap(err, "<-- Stores.DisableParticipation").Error(), nil)
+			return
+		}
+		a.logger.Info(logger.Stores, logger.EnableParticipation, "<-- Stores.DisableParticipation", nil)
+	}()
+	return a.App.DisableParticipation(ctx, cmd)
+}

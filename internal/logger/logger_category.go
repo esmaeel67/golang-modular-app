@@ -56,6 +56,7 @@ const (
 	GetStores              SubCategory = "GetStores"
 	GetParticipatingStores SubCategory = "GetParticipatingStores"
 	EnableParticipation    SubCategory = "EnableParticipation"
+	DisableParticipation   SubCategory = "DisableParticipation"
 )
 
 const (
