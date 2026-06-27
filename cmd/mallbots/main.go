@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/esmaeel67/golang-modular-app/baskets"
 	"github.com/esmaeel67/golang-modular-app/internal/config"
 	"github.com/esmaeel67/golang-modular-app/internal/logger"
 	"github.com/esmaeel67/golang-modular-app/internal/monolith"
@@ -53,7 +54,9 @@ func run() error {
 	m.mux = initMux(cfg.Web)
 	m.waiter = waiter.New(waiter.CatchSignals())
 
-	m.modules = []monolith.Module{}
+	m.modules = []monolith.Module{
+		&baskets.Module{},
+	}
 
 	if err = m.startupModules(); err != nil {
 		return err
