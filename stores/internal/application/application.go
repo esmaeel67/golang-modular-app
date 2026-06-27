@@ -16,6 +16,7 @@ type (
 	Commands interface {
 		CreateStore(ctx context.Context, cmd commands.CreateStore) error
 		EnableParticipation(ctx context.Context, cmd commands.EnableParticipation) error
+		DisableParticipation(ctx context.Context, cmd commands.DisableParticipation) error
 	}
 	Queries interface {
 		GetStore(ctx context.Context, query queries.GetStore) (*domain.Store, error)
@@ -28,6 +29,7 @@ type (
 	appCommands struct {
 		commands.CreateStoreHandler
 		commands.EnableParticipationHandler
+		commands.DisableParticipationHandler
 	}
 	appQueries struct {
 		queries.GetStoreHandler
@@ -40,8 +42,9 @@ var _ App = (*Application)(nil)
 func New(stores domain.StoreRepository, participatingStores domain.ParticipatingStoreRepository, products domain.ProductRepository) *Application {
 	return &Application{
 		appCommands: appCommands{
-			CreateStoreHandler:         commands.NewCreateStoreHandler(stores),
-			EnableParticipationHandler: commands.NewEnableParticipationHandler(stores),
+			CreateStoreHandler:          commands.NewCreateStoreHandler(stores),
+			EnableParticipationHandler:  commands.NewEnableParticipationHandler(stores),
+			DisableParticipationHandler: commands.NewDisableParticipationHandler(stores),
 		},
 		appQueries: appQueries{
 			GetStoreHandler:  queries.NewGetStoreHandler(stores),
