@@ -104,6 +104,22 @@ func (s server) GetParticipatingStores(ctx context.Context, query *pb.GetPartici
 	}, nil
 }
 
+func (s server) AddProduct(ctx context.Context, request *pb.AddProductRequest) (*pb.AddProductResponse, error) {
+	id := uuid.New().String()
+	err := s.app.AddProduct(ctx, commands.AddProduct{
+		ID:          id,
+		StoreID:     request.GetStoreId(),
+		Name:        request.GetName(),
+		Description: request.GetDescription(),
+		SKU:         request.GetSku(),
+		Price:       request.GetPrice(),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &pb.AddProductResponse{Id: id}, nil
+}
+
 func (s server) storeFromDomain(store *domain.Store) *pb.Store {
 	return &pb.Store{
 		Id:            store.ID,

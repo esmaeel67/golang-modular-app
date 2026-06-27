@@ -83,6 +83,18 @@ func (a Application) DisableParticipation(ctx context.Context, cmd commands.Disa
 	return a.App.DisableParticipation(ctx, cmd)
 }
 
+func (a Application) AddProduct(ctx context.Context, cmd commands.AddProduct) (err error) {
+	a.logger.Info(logger.Stores, logger.AddProduct, "--> --> Stores.AddProduct", nil)
+	defer func() {
+		if err != nil {
+			a.logger.Info(logger.Stores, logger.GetParticipatingStores, errors.Wrap(err, "<-- Stores.AddProduct").Error(), nil)
+			return
+		}
+		a.logger.Info(logger.Stores, logger.GetParticipatingStores, "<-- Stores.AddProduct", nil)
+	}()
+	return a.App.AddProduct(ctx, cmd)
+}
+
 func (a Application) GetParticipatingStores(ctx context.Context, query queries.GetParticipatingStores) (store []*domain.Store, err error) {
 	a.logger.Info(logger.Stores, logger.GetParticipatingStores, "--> Stores.GetParticipatingStores", nil)
 	defer func() {
