@@ -66,7 +66,6 @@ func (s server) GetStores(ctx context.Context, request *pb.GetStoresRequest) (*p
 }
 
 func (s server) EnableParticipation(ctx context.Context, request *pb.EnableParticipationRequest) (*pb.EnableParticipationResponse, error) {
-
 	err := s.app.EnableParticipation(ctx, commands.EnableParticipation{
 		ID: request.GetId(),
 	})
@@ -76,6 +75,17 @@ func (s server) EnableParticipation(ctx context.Context, request *pb.EnableParti
 	}
 
 	return &pb.EnableParticipationResponse{}, nil
+}
+func (s server) DisableParticipation(ctx context.Context, request *pb.DisableParticipationRequest) (*pb.DisableParticipationResponse, error) {
+	err := s.app.DisableParticipation(ctx, commands.DisableParticipation{
+		ID: request.GetId(),
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.DisableParticipationResponse{}, nil
 }
 
 func (s server) storeFromDomain(store *domain.Store) *pb.Store {
