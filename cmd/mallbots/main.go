@@ -14,6 +14,7 @@ import (
 	"github.com/esmaeel67/golang-modular-app/internal/rpc"
 	"github.com/esmaeel67/golang-modular-app/internal/waiter"
 	"github.com/esmaeel67/golang-modular-app/internal/web"
+	"github.com/esmaeel67/golang-modular-app/notifications"
 	"github.com/esmaeel67/golang-modular-app/stores"
 	"github.com/go-chi/chi/v5"
 	_ "github.com/jackc/pgx/v5/stdlib"
@@ -59,6 +60,7 @@ func run() error {
 	m.modules = []monolith.Module{
 		&baskets.Module{},
 		&customers.Module{},
+		&notifications.Module{},
 		&stores.Module{},
 	}
 

@@ -15,7 +15,8 @@ const (
 	Prometheus      Category = "Prometheus"
 	Baskets         Category = "Baskets"
 	Stores          Category = "Stores"
-	Customer        Category = "Customer"
+	Customers       Category = "Customers"
+	Notifications   Category = "Notifications"
 )
 
 const (
@@ -69,6 +70,11 @@ const (
 	GetCustomer       SubCategory = "GetCustomer"
 	EnableCustomer    SubCategory = "EnableCustomer"
 	DisableCustomer   SubCategory = "DisableCustomer"
+
+	// Notifications
+	NotifyOrderCreated  SubCategory = "NotifyOrderCreated"
+	NotifyOrderCanceled SubCategory = "NotifyOrderCanceled"
+	NotifyOrderReady    SubCategory = "NotifyOrderReady"
 )
 
 const (
