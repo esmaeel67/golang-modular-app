@@ -17,6 +17,7 @@ const (
 	Stores          Category = "Stores"
 	Customers       Category = "Customers"
 	Notifications   Category = "Notifications"
+	Payments        Category = "Payments"
 )
 
 const (
@@ -75,6 +76,14 @@ const (
 	NotifyOrderCreated  SubCategory = "NotifyOrderCreated"
 	NotifyOrderCanceled SubCategory = "NotifyOrderCanceled"
 	NotifyOrderReady    SubCategory = "NotifyOrderReady"
+
+	// Payments
+	AuthorizePayment SubCategory = "AuthorizePayment"
+	ConfirmPayment   SubCategory = "ConfirmPayment"
+	CreateInvoice    SubCategory = "CreateInvoice"
+	AdjustInvoice    SubCategory = "AdjustInvoice"
+	PayInvoice       SubCategory = "PayInvoice"
+	CancelInvoice    SubCategory = "CancelInvoice"
 )
 
 const (
