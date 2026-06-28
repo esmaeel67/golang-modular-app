@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/esmaeel67/golang-modular-app/baskets"
+	"github.com/esmaeel67/golang-modular-app/customers"
 	"github.com/esmaeel67/golang-modular-app/internal/config"
 	"github.com/esmaeel67/golang-modular-app/internal/logger"
 	"github.com/esmaeel67/golang-modular-app/internal/monolith"
@@ -57,6 +58,7 @@ func run() error {
 
 	m.modules = []monolith.Module{
 		&baskets.Module{},
+		&customers.Module{},
 		&stores.Module{},
 	}
 
