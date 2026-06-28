@@ -1,0 +1,5 @@
+syntax = "proto3";
+
+package notificationspb;
+
+option go_package = "github.com/esmaeel67/golang-modular-app/notifications/notificationspb";
