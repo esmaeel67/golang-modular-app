@@ -47,12 +47,15 @@ type App interface {
 }
 
 type Application struct {
-	baskets domain.BasketRepository
+	baskets  domain.BasketRepository
+	stores   domain.StoreRepository
+	products domain.ProductRepository
+	orders   domain.OrderRepository
 }
 
 var _ App = (*Application)(nil)
 
-func New(baskets domain.BasketRepository) *Application {
+func New(baskets domain.BasketRepository, stores domain.StoreRepository, products domain.ProductRepository, orders domain.OrderRepository) *Application {
 	if baskets == nil {
 		panic("baskets repository cannot be nil")
 	}
@@ -86,6 +89,7 @@ func (a *Application) CancelBasket(ctx context.Context, cancel CancelBasket) err
 
 	return a.baskets.Update(ctx, basket)
 }
+
 func (a *Application) CheckoutBasket(ctx context.Context, checkout CheckoutBasket) error {
 	basket, err := a.baskets.Find(ctx, checkout.ID)
 	if err != nil {
@@ -97,21 +101,55 @@ func (a *Application) CheckoutBasket(ctx context.Context, checkout CheckoutBaske
 	}
 
 	// submit the basket to the order module
-	// _,err = a.order.save(ctx,basket)
-	// if err != nil {
-	// 	return errors.Wrap(err,"baskets checkout")
-	// }
+	_, err = a.orders.Save(ctx, basket)
+	if err != nil {
+		return errors.Wrap(err, "baskets checkout")
+	}
 
 	return errors.Wrap(a.baskets.Update(ctx, basket), "basket checkout")
 
 }
 
 func (a *Application) AddItem(ctx context.Context, add AddItem) error {
-	return nil
+	basket, err := a.baskets.Find(ctx, add.ID)
+	if err != nil {
+		return err
+	}
+
+	product, err := a.products.Find(ctx, add.ProductID)
+	if err != nil {
+		return err
+	}
+
+	store, err := a.stores.Find(ctx, product.StoreID)
+	if err != nil {
+		return err
+	}
+
+	err = basket.AddItem(store, product, add.Quantity)
+	if err != nil {
+		return err
+	}
+	return a.baskets.Update(ctx, basket)
 }
 
 func (a *Application) RemoveItem(ctx context.Context, remove RemoveItem) error {
-	return nil
+	product, err := a.products.Find(ctx, remove.ProductID)
+	if err != nil {
+		return err
+	}
+
+	basket, err := a.baskets.Find(ctx, remove.ID)
+	if err != nil {
+		return err
+	}
+
+	err = basket.RemoveItem(product, remove.Quantity)
+	if err != nil {
+		return nil
+	}
+
+	return a.baskets.Update(ctx, basket)
 }
 func (a *Application) GetBasket(ctx context.Context, get GetBasket) (*domain.Basket, error) {
 	return a.baskets.Find(ctx, get.ID)

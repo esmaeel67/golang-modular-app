@@ -17,17 +17,19 @@ func (m *Module) Startup(ctx context.Context, mono monolith.Monolith) (err error
 
 	baskets := postgres.NewBasketRepository("baskets", mono.DB())
 
-	// conn, err := grpc.Dial(ctx, mono.Config().Rpc.Address())
+	conn, err := grpc.Dial(ctx, mono.Config().Rpc.Address())
 
-	// if err != nil {
-	// 	return err
-	// }
+	if err != nil {
+		return err
+	}
 	//TODO: implemented stores and product and orders repository
-	// sores := grpc.NewStoreRepository(con)
+	stores := grpc.NewStoreRepository(conn)
+	products := grpc.NewProductRepository(conn)
+	orders := grpc.NewOrderRepository(conn)
 
 	// setup application
 	var app application.App
-	app = application.New(baskets)
+	app = application.New(baskets, stores, products, orders)
 	app = logging.LogApplicationAccess(app, mono.Logger())
 
 	// Print the type of registrar
