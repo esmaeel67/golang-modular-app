@@ -1,6 +1,11 @@
 package application
 
-import "github.com/esmaeel67/golang-modular-app/ordering/internal/domain"
+import (
+	"context"
+
+	"github.com/esmaeel67/golang-modular-app/ordering/internal/application/commands"
+	"github.com/esmaeel67/golang-modular-app/ordering/internal/domain"
+)
 
 type (
 	App interface {
@@ -9,6 +14,7 @@ type (
 	}
 
 	Commands interface {
+		CreateOrder(ctx context.Context, cmd commands.CreateOrderCommand) error
 	}
 	Queries interface {
 	}
@@ -18,6 +24,7 @@ type (
 		appQueries
 	}
 	appCommands struct {
+		commands.CreateOrderHandler
 	}
 	appQueries struct {
 	}
@@ -28,7 +35,9 @@ var _ App = (*Application)(nil)
 func New(orders domain.OrderRepository, customers domain.CustomerRepository, payments domain.PaymentRepository,
 	invoices domain.InvoiceRepository, shopping domain.ShoppingRepository) *Application {
 	return &Application{
-		appCommands: appCommands{},
-		appQueries:  appQueries{},
+		appCommands: appCommands{
+			CreateOrderHandler: commands.NewCreateOrderHandler(orders, customers, payments, shopping, notifications),
+		},
+		appQueries: appQueries{},
 	}
 }
