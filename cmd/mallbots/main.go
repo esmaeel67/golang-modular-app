@@ -15,6 +15,7 @@ import (
 	"github.com/esmaeel67/golang-modular-app/internal/waiter"
 	"github.com/esmaeel67/golang-modular-app/internal/web"
 	"github.com/esmaeel67/golang-modular-app/notifications"
+	"github.com/esmaeel67/golang-modular-app/ordering"
 	"github.com/esmaeel67/golang-modular-app/payments"
 	"github.com/esmaeel67/golang-modular-app/stores"
 	"github.com/go-chi/chi/v5"
@@ -63,6 +64,7 @@ func run() error {
 		&customers.Module{},
 		&notifications.Module{},
 		&stores.Module{},
+		&ordering.Module{},
 		&payments.Module{},
 	}
 
