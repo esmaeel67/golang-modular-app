@@ -48,3 +48,26 @@ buf format -w
 
 # Build your module (validates all files)
 buf build
+
+## VS Code Launch Configuration
+
+To debug the Go application in VS Code, add this configuration to your `.vscode/launch.json` file:
+
+```json
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch go lang app",
+            "request": "launch",
+            "type": "go",
+            "mode": "auto",            
+            "program": "${workspaceFolder}/cmd/mallbots",            
+            "cwd": "${workspaceFolder}",
+            // "preLaunchTask": "${workspaceFolder}"
+        }
+    ]
+}
