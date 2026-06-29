@@ -18,6 +18,8 @@ const (
 	Customers       Category = "Customers"
 	Notifications   Category = "Notifications"
 	Payments        Category = "Payments"
+	Orders          Category = "Orders"
+	Depot           Category = "Depot"
 )
 
 const (
@@ -84,6 +86,20 @@ const (
 	AdjustInvoice    SubCategory = "AdjustInvoice"
 	PayInvoice       SubCategory = "PayInvoice"
 	CancelInvoice    SubCategory = "CancelInvoice"
+
+	// Orders
+	CreateOrder   SubCategory = "CreateOrder"
+	CancelOrder   SubCategory = "CancelOrder"
+	ReadyOrder    SubCategory = "ReadyOrder"
+	CompleteOrder SubCategory = "CompleteOrder"
+	GetOrder      SubCategory = "GetOrder"
+
+	// Depot
+	CreateShoppingList   SubCategory = "CreateShoppingList"
+	CancelShoppingList   SubCategory = "CancelShoppingList"
+	AssignShoppingList   SubCategory = "AssignShoppingList"
+	CompleteShoppingList SubCategory = "CompleteShoppingList"
+	GetShoppingList      SubCategory = "GetShoppingList"
 )
 
 const (
