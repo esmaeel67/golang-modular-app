@@ -33,7 +33,7 @@ type (
 var _ App = (*Application)(nil)
 
 func New(orders domain.OrderRepository, customers domain.CustomerRepository, payments domain.PaymentRepository,
-	invoices domain.InvoiceRepository, shopping domain.ShoppingRepository) *Application {
+	invoices domain.InvoiceRepository, shopping domain.ShoppingRepository, notifications domain.NotificationRepository) *Application {
 	return &Application{
 		appCommands: appCommands{
 			CreateOrderHandler: commands.NewCreateOrderHandler(orders, customers, payments, shopping, notifications),
