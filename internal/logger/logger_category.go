@@ -93,6 +93,10 @@ const (
 	ReadyOrder    SubCategory = "ReadyOrder"
 	CompleteOrder SubCategory = "CompleteOrder"
 	GetOrder      SubCategory = "GetOrder"
+	// orders events
+	OnOrderCreated  SubCategory = "OnOrderCreated"
+	OnOrderReadied  SubCategory = "OnOrderReadied"
+	OnOrderCanceled SubCategory = "OnOrderCanceled"
 
 	// Depot
 	CreateShoppingList   SubCategory = "CreateShoppingList"

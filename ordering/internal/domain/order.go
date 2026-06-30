@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"github.com/esmaeel67/golang-modular-app/internal/ddd"
 	"github.com/stackus/errors"
 )
 
@@ -12,7 +13,7 @@ var (
 )
 
 type Order struct {
-	ID         string
+	ddd.AggregateBase
 	CustomerID string
 	PaymentID  string
 	InvoiceID  string
@@ -36,22 +37,32 @@ func CreateOrder(id, customerID, paymentID string, items []*Item) (*Order, error
 	}
 
 	order := &Order{
-		ID:         id,
+		AggregateBase: ddd.AggregateBase{
+			ID: id,
+		},
 		CustomerID: customerID,
 		PaymentID:  paymentID,
 		Items:      items,
-		Status:     OrderPending,
+		Status:     OrderIsPending,
 	}
+
+	order.AddEvent(&OrderCreated{
+		Order: order,
+	})
 
 	return order, nil
 }
 
 func (o *Order) Cancel() error {
-	if o.Status != OrderPending {
+	if o.Status != OrderIsPending {
 		return ErrOrderCannotBeCancelled
 	}
 
-	o.Status = OrderCancelled
+	o.Status = OrderIsCancelled
+
+	o.AddEvent(&OrderCanceled{
+		Order: o,
+	})
 
 	return nil
 }
@@ -59,7 +70,10 @@ func (o *Order) Cancel() error {
 func (o *Order) Ready() error {
 	// validate status
 
-	o.Status = OrderReady
+	o.Status = OrderIsReady
+	o.AddEvent(&OrderReadied{
+		Order: o,
+	})
 
 	return nil
 }
@@ -70,7 +84,11 @@ func (o *Order) Complete(invoiceID string) error {
 	// validate status
 
 	o.InvoiceID = invoiceID
-	o.Status = OrderCompleted
+	o.Status = OrderIsCompleted
+
+	o.AddEvent(&OrderCompleted{
+		Order: o,
+	})
 
 	return nil
 }
