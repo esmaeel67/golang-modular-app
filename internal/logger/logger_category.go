@@ -54,6 +54,12 @@ const (
 	BasketAddItem    SubCategory = "BasketAddItem"
 	BasketRemoveItem SubCategory = "BasketRemoveItem"
 	GetBasket        SubCategory = "GetBasket"
+	// baskets events
+	OnBasketStarted     SubCategory = "OnBasketStarted"
+	OnBasketItemAdded   SubCategory = "OnBasketItemAdded"
+	OnBasketItemRemoved SubCategory = "OnBasketItemRemoved"
+	OnBasketCanceled    SubCategory = "OnBasketCanceled"
+	OnBasketCheckedOut  SubCategory = "OnBasketCheckedOut"
 
 	// Stores
 	CreateStore            SubCategory = "CreateStore"
