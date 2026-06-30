@@ -2,9 +2,9 @@ package application
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/esmaeel67/golang-modular-app/baskets/internal/domain"
+	"github.com/esmaeel67/golang-modular-app/internal/ddd"
 	"github.com/stackus/errors"
 )
 
@@ -47,21 +47,23 @@ type App interface {
 }
 
 type Application struct {
-	baskets  domain.BasketRepository
-	stores   domain.StoreRepository
-	products domain.ProductRepository
-	orders   domain.OrderRepository
+	baskets         domain.BasketRepository
+	stores          domain.StoreRepository
+	products        domain.ProductRepository
+	orders          domain.OrderRepository
+	domainPublisher ddd.EventPublisher
 }
 
 var _ App = (*Application)(nil)
 
-func New(baskets domain.BasketRepository, stores domain.StoreRepository, products domain.ProductRepository, orders domain.OrderRepository) *Application {
-	if baskets == nil {
-		panic("baskets repository cannot be nil")
-	}
-
+func New(baskets domain.BasketRepository, stores domain.StoreRepository, products domain.ProductRepository,
+	orders domain.OrderRepository, domainPublisher ddd.EventPublisher) *Application {
 	return &Application{
-		baskets: baskets,
+		baskets:         baskets,
+		stores:          stores,
+		products:        products,
+		orders:          orders,
+		domainPublisher: domainPublisher,
 	}
 }
 
@@ -71,8 +73,17 @@ func (a *Application) StartBasket(ctx context.Context, start StartBasket) error 
 	if err != nil {
 		return err
 	}
-	fmt.Println(basket)
-	return a.baskets.Save(ctx, basket)
+
+	if err = a.baskets.Save(ctx, basket); err != nil {
+		return err
+	}
+
+	// publish domain events
+	if err = a.domainPublisher.Publish(ctx, basket.GetEvents()...); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (a *Application) CancelBasket(ctx context.Context, cancel CancelBasket) error {
@@ -87,7 +98,16 @@ func (a *Application) CancelBasket(ctx context.Context, cancel CancelBasket) err
 		return err
 	}
 
-	return a.baskets.Update(ctx, basket)
+	if err = a.baskets.Update(ctx, basket); err != nil {
+		return err
+	}
+
+	// publish domain events
+	if err = a.domainPublisher.Publish(ctx, basket.GetEvents()...); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (a *Application) CheckoutBasket(ctx context.Context, checkout CheckoutBasket) error {
@@ -100,13 +120,15 @@ func (a *Application) CheckoutBasket(ctx context.Context, checkout CheckoutBaske
 		return errors.Wrap(err, "basket checkout")
 	}
 
-	// submit the basket to the order module
-	_, err = a.orders.Save(ctx, basket)
-	if err != nil {
-		return errors.Wrap(err, "baskets checkout")
+	if err = a.baskets.Update(ctx, basket); err != nil {
+		return errors.Wrap(err, "basket checkout")
 	}
 
-	return errors.Wrap(a.baskets.Update(ctx, basket), "basket checkout")
+	// publish domain events
+	if err = a.domainPublisher.Publish(ctx, basket.GetEvents()...); err != nil {
+		return err
+	}
+	return nil
 
 }
 
