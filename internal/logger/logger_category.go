@@ -110,6 +110,11 @@ const (
 	AssignShoppingList   SubCategory = "AssignShoppingList"
 	CompleteShoppingList SubCategory = "CompleteShoppingList"
 	GetShoppingList      SubCategory = "GetShoppingList"
+	// depot events
+	OnShoppingListCreated   SubCategory = "OnShoppingListCreated"
+	OnShoppingListCanceled  SubCategory = "OnShoppingListCanceled"
+	OnShoppingListAssigned  SubCategory = "OnShoppingListAssigned"
+	OnShoppingListCompleted SubCategory = "OnShoppingListCompleted"
 )
 
 const (
