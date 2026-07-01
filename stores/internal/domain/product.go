@@ -39,6 +39,15 @@ func CreateProduct(id, storeID, name, description, sku string, price float64) (*
 		SKU:         sku,
 		Price:       price,
 	}
+	product.AddEvent(&ProductAdded{
+		Product: product,
+	})
 	return product, nil
+}
 
+func (p *Product) Remove() error {
+	p.AddEvent(&ProductRemoved{
+		Product: p,
+	})
+	return nil
 }

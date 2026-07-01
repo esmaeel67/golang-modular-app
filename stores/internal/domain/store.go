@@ -36,6 +36,10 @@ func CreateStore(id, name, location string) (store *Store, err error) {
 		Name:     name,
 		Location: location,
 	}
+
+	store.AddEvent(&StoreCreated{
+		Store: store,
+	})
 	return
 }
 
@@ -45,6 +49,10 @@ func (s *Store) EnableParticipation() (err error) {
 	}
 	s.Participating = true
 
+	s.AddEvent(&StoreParticipationEnabled{
+		Store: s,
+	})
+
 	return
 }
 func (s *Store) DisableParticipation() (err error) {
@@ -53,6 +61,10 @@ func (s *Store) DisableParticipation() (err error) {
 	}
 
 	s.Participating = false
+
+	s.AddEvent(&StoreParticipationDisabled{
+		Store: s,
+	})
 
 	return
 }
