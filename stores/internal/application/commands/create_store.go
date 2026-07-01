@@ -3,6 +3,7 @@ package commands
 import (
 	"context"
 
+	"github.com/esmaeel67/golang-modular-app/internal/ddd"
 	"github.com/esmaeel67/golang-modular-app/stores/internal/domain"
 )
 
@@ -13,12 +14,13 @@ type (
 		Location string
 	}
 	CreateStoreHandler struct {
-		stores domain.StoreRepository
+		stores          domain.StoreRepository
+		domainPublisher ddd.EventPublisher
 	}
 )
 
-func NewCreateStoreHandler(stores domain.StoreRepository) CreateStoreHandler {
-	return CreateStoreHandler{stores: stores}
+func NewCreateStoreHandler(stores domain.StoreRepository, domainPublisher ddd.EventPublisher) CreateStoreHandler {
+	return CreateStoreHandler{stores: stores, domainPublisher: domainPublisher}
 }
 
 func (h CreateStoreHandler) CreateStore(ctx context.Context, cmd CreateStore) error {
@@ -27,6 +29,13 @@ func (h CreateStoreHandler) CreateStore(ctx context.Context, cmd CreateStore) er
 		return err
 	}
 
-	err = h.stores.Save(ctx, store)
-	return err
+	if err = h.stores.Save(ctx, store); err != nil {
+		return err
+	}
+
+	if err = h.domainPublisher.Publish(ctx, store.GetEvents()...); err != nil {
+		return err
+	}
+
+	return nil
 }

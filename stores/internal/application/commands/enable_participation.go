@@ -3,6 +3,7 @@ package commands
 import (
 	"context"
 
+	"github.com/esmaeel67/golang-modular-app/internal/ddd"
 	"github.com/esmaeel67/golang-modular-app/stores/internal/domain"
 )
 
@@ -11,12 +12,14 @@ type EnableParticipation struct {
 }
 
 type EnableParticipationHandler struct {
-	stores domain.StoreRepository
+	stores          domain.StoreRepository
+	domainPublisher ddd.EventPublisher
 }
 
-func NewEnableParticipationHandler(stores domain.StoreRepository) EnableParticipationHandler {
+func NewEnableParticipationHandler(stores domain.StoreRepository, domainPublisher ddd.EventPublisher) EnableParticipationHandler {
 	return EnableParticipationHandler{
-		stores: stores,
+		stores:          stores,
+		domainPublisher: domainPublisher,
 	}
 }
 
@@ -26,10 +29,18 @@ func (h EnableParticipationHandler) EnableParticipation(ctx context.Context, cmd
 		return err
 	}
 
-	err = store.EnableParticipation()
-	if err != nil {
+	if err = store.EnableParticipation(); err != nil {
 		return err
 	}
 
-	return h.stores.Update(ctx, store)
+	if err = h.stores.Update(ctx, store); err != nil {
+		return err
+	}
+
+	// publish domain events
+	if err = h.domainPublisher.Publish(ctx, store.GetEvents()...); err != nil {
+		return err
+	}
+
+	return nil
 }
