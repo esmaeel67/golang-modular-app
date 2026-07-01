@@ -72,6 +72,12 @@ const (
 	RemoveProduct          SubCategory = "RemoveProduct"
 	GetCatalog             SubCategory = "GetCatalog"
 	GetProduct             SubCategory = "GetProduct"
+	// stores events
+	StoreCreated               SubCategory = "StoreCreated"
+	StoreParticipationEnabled  SubCategory = "StoreParticipationEnabled"
+	StoreParticipationDisabled SubCategory = "StoreParticipationDisabled"
+	ProductAdded               SubCategory = "ProductAdded"
+	ProductRemoved             SubCategory = "ProductRemoved"
 
 	// Customer
 	RegisterCustomer  SubCategory = "RegisterCustomer"
