@@ -1,6 +1,9 @@
 package domain
 
-import "github.com/stackus/errors"
+import (
+	"github.com/esmaeel67/golang-modular-app/internal/ddd"
+	"github.com/stackus/errors"
+)
 
 var (
 	ErrStoreNameIsBlank               = errors.Wrap(errors.ErrBadRequest, "the store name cannot be blank")
@@ -10,7 +13,7 @@ var (
 )
 
 type Store struct {
-	ID            string
+	ddd.AggregateBase
 	Name          string
 	Location      string
 	Participating bool
@@ -27,7 +30,9 @@ func CreateStore(id, name, location string) (store *Store, err error) {
 	}
 
 	store = &Store{
-		ID:       id,
+		AggregateBase: ddd.AggregateBase{
+			ID: id,
+		},
 		Name:     name,
 		Location: location,
 	}
