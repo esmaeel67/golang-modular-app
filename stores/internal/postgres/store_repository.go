@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 
+	"github.com/esmaeel67/golang-modular-app/internal/ddd"
 	"github.com/esmaeel67/golang-modular-app/stores/internal/domain"
 	"github.com/stackus/errors"
 )
@@ -26,7 +27,9 @@ func NewStoreRepository(tableName string, db *sql.DB) StoreRepository {
 func (r StoreRepository) Find(ctx context.Context, storeID string) (*domain.Store, error) {
 	const query = "SELECT name, location, participating FROM %s WHERE id= $1 LIMIT 1"
 	store := &domain.Store{
-		ID: storeID,
+		AggregateBase: ddd.AggregateBase{
+			ID: storeID,
+		},
 	}
 	err := r.db.QueryRowContext(ctx, r.table(query), storeID).Scan(&store.Name, &store.Location, &store.Participating)
 	if err != nil {

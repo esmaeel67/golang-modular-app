@@ -3,6 +3,7 @@ package commands
 import (
 	"context"
 
+	"github.com/esmaeel67/golang-modular-app/internal/ddd"
 	"github.com/esmaeel67/golang-modular-app/stores/internal/domain"
 	"github.com/stackus/errors"
 )
@@ -17,16 +18,16 @@ type AddProduct struct {
 }
 
 type AddProductHandler struct {
-	stores   domain.StoreRepository
-	products domain.ProductRepository
+	stores          domain.StoreRepository
+	products        domain.ProductRepository
+	domainPublisher ddd.EventPublisher
 }
 
-func NewAddProductHandler(stores domain.StoreRepository, products domain.ProductRepository) AddProductHandler {
-	return AddProductHandler{stores: stores, products: products}
+func NewAddProductHandler(stores domain.StoreRepository, products domain.ProductRepository, domainPublisher ddd.EventPublisher) AddProductHandler {
+	return AddProductHandler{stores: stores, products: products, domainPublisher: domainPublisher}
 }
 
 func (h AddProductHandler) AddProduct(ctx context.Context, cmd AddProduct) error {
-
 	_, err := h.stores.Find(ctx, cmd.StoreID)
 	if err != nil {
 		return errors.Wrap(err, "error adding product(store not found)")
@@ -37,6 +38,13 @@ func (h AddProductHandler) AddProduct(ctx context.Context, cmd AddProduct) error
 		return errors.Wrap(err, "error adding product")
 	}
 
-	return errors.Wrap(h.products.AddProduct(ctx, product), "error adding product")
+	if err = h.products.AddProduct(ctx, product); err != nil {
+		return errors.Wrap(err, "error adding product")
+	}
 
+	if err = h.domainPublisher.Publish(ctx, product.GetEvents()...); err != nil {
+		return err
+	}
+
+	return nil
 }

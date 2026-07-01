@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 
+	"github.com/esmaeel67/golang-modular-app/internal/ddd"
 	"github.com/esmaeel67/golang-modular-app/stores/internal/domain"
 	"github.com/stackus/errors"
 )
@@ -27,7 +28,9 @@ func (r ProductRepository) FindProduct(ctx context.Context, id string) (*domain.
 	const query = "SELECT store_id, name, description, sku, price FROM %s WHERE id = $1 LIMIT 1"
 
 	product := &domain.Product{
-		ID: id,
+		AggregateBase: ddd.AggregateBase{
+			ID: id,
+		},
 	}
 
 	err := r.db.QueryRowContext(ctx, r.table(query), id).Scan(&product.StoreID, &product.Name, &product.Description, &product.SKU, &product.Price)

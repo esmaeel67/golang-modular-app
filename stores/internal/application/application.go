@@ -3,6 +3,7 @@ package application
 import (
 	"context"
 
+	"github.com/esmaeel67/golang-modular-app/internal/ddd"
 	"github.com/esmaeel67/golang-modular-app/stores/internal/application/commands"
 	"github.com/esmaeel67/golang-modular-app/stores/internal/application/queries"
 	"github.com/esmaeel67/golang-modular-app/stores/internal/domain"
@@ -49,14 +50,15 @@ type (
 
 var _ App = (*Application)(nil)
 
-func New(stores domain.StoreRepository, participatingStores domain.ParticipatingStoreRepository, products domain.ProductRepository) *Application {
+func New(stores domain.StoreRepository, participatingStores domain.ParticipatingStoreRepository, products domain.ProductRepository,
+	domainDispatcher ddd.EventPublisher) *Application {
 	return &Application{
 		appCommands: appCommands{
-			CreateStoreHandler:          commands.NewCreateStoreHandler(stores),
-			EnableParticipationHandler:  commands.NewEnableParticipationHandler(stores),
-			DisableParticipationHandler: commands.NewDisableParticipationHandler(stores),
-			AddProductHandler:           commands.NewAddProductHandler(stores, products),
-			RemoveProductHandler:        commands.NewRemoveProductHandler(stores, products),
+			CreateStoreHandler:          commands.NewCreateStoreHandler(stores, domainDispatcher),
+			EnableParticipationHandler:  commands.NewEnableParticipationHandler(stores, domainDispatcher),
+			DisableParticipationHandler: commands.NewDisableParticipationHandler(stores, domainDispatcher),
+			AddProductHandler:           commands.NewAddProductHandler(stores, products, domainDispatcher),
+			RemoveProductHandler:        commands.NewRemoveProductHandler(stores, products, domainDispatcher),
 		},
 		appQueries: appQueries{
 			GetStoreHandler:                queries.NewGetStoreHandler(stores),
