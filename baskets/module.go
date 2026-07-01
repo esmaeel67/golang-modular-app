@@ -16,7 +16,7 @@ import (
 type Module struct{}
 
 func (m *Module) Startup(ctx context.Context, mono monolith.Monolith) (err error) {
-
+	// setup Driven adapters
 	domainDispatcher := ddd.NewEventDispatcher()
 	baskets := postgres.NewBasketRepository("baskets", mono.DB())
 
@@ -31,7 +31,6 @@ func (m *Module) Startup(ctx context.Context, mono monolith.Monolith) (err error
 	orders := grpc.NewOrderRepository(conn)
 
 	// setup application
-
 	app := logging.LogApplicationAccess(
 		application.New(baskets, stores, products, orders, domainDispatcher),
 		mono.Logger(),
@@ -40,9 +39,6 @@ func (m *Module) Startup(ctx context.Context, mono monolith.Monolith) (err error
 		application.NewOrderHandler(orders),
 		mono.Logger(),
 	)
-
-	// application.New(baskets, stores, products, orders,domainDispatcher)
-	// app = logging.LogApplicationAccess(app, mono.Logger())
 
 	// Print the type of registrar
 	fmt.Printf("🔍 Registrar type: %T\n", mono.RPC())
