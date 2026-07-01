@@ -1,6 +1,9 @@
 package domain
 
-import "github.com/stackus/errors"
+import (
+	"github.com/esmaeel67/golang-modular-app/internal/ddd"
+	"github.com/stackus/errors"
+)
 
 var (
 	ErrProductNameIsBlank     = errors.Wrap(errors.ErrBadRequest, "the product name cannot be blank")
@@ -8,7 +11,7 @@ var (
 )
 
 type Product struct {
-	ID          string
+	ddd.AggregateBase
 	StoreID     string
 	Name        string
 	Description string
@@ -27,7 +30,9 @@ func CreateProduct(id, storeID, name, description, sku string, price float64) (*
 	}
 
 	product := &Product{
-		ID:          id,
+		AggregateBase: ddd.AggregateBase{
+			ID: id,
+		},
 		StoreID:     storeID,
 		Name:        name,
 		Description: description,
