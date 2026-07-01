@@ -7,6 +7,7 @@ import (
 	"fmt"
 
 	"github.com/esmaeel67/golang-modular-app/depot/internal/domain"
+	"github.com/esmaeel67/golang-modular-app/internal/ddd"
 	"github.com/stackus/errors"
 )
 
@@ -27,7 +28,9 @@ func NewShoppingListRepository(tableName string, db *sql.DB) ShoppingListReposit
 func (r ShoppingListRepository) Find(ctx context.Context, id string) (*domain.ShoppingList, error) {
 	const query = "SELECT order_id, stops, assigned_bot_id, status FROM %s WHERE id = $1 LIMIT 1"
 	shoppingList := &domain.ShoppingList{
-		ID: id,
+		AggregateBase: ddd.AggregateBase{
+			ID: id,
+		},
 	}
 	var stops []byte
 	var status string
