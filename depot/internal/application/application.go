@@ -6,6 +6,7 @@ import (
 	"github.com/esmaeel67/golang-modular-app/depot/internal/application/commands"
 	"github.com/esmaeel67/golang-modular-app/depot/internal/application/queries"
 	"github.com/esmaeel67/golang-modular-app/depot/internal/domain"
+	"github.com/esmaeel67/golang-modular-app/internal/ddd"
 )
 
 type (
@@ -43,14 +44,14 @@ var _ App = (*Application)(nil)
 
 func New(shoppingLists domain.ShoppingListRepository, stores domain.StoreRepository,
 	products domain.ProductRepository,
-	orders domain.OrderRepository) *Application {
+	domainPublisher ddd.EventPublisher) *Application {
 
 	return &Application{
 		appCommands: appCommands{
 			CreateShoppingListHandler:   commands.NewCreateShoppingListHandler(shoppingLists, stores, products),
 			CancelShoppingListHandler:   commands.NewCancelShoppingListHandler(shoppingLists),
 			AssignShoppingListHandler:   commands.NewAssignShoppingListHandler(shoppingLists),
-			CompleteShoppingListHandler: commands.NewCompleteShoppingListHandler(shoppingLists, orders),
+			CompleteShoppingListHandler: commands.NewCompleteShoppingListHandler(shoppingLists, domainPublisher),
 		},
 		appQueries: appQueries{
 			GetShoppingListHandler: queries.NewGetShoppingListHandler(shoppingLists),
