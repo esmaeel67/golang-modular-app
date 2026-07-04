@@ -10,7 +10,7 @@ type IDSetter interface {
 	setID(string)
 }
 
-func SetId(id string) registry.BuildOption {
+func SetID(id string) registry.BuildOption {
 	return func(v interface{}) error {
 		if e, ok := v.(IDSetter); ok {
 			e.setID(id)
