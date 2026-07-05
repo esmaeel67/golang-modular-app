@@ -73,6 +73,7 @@ const (
 	GetCatalog             SubCategory = "GetCatalog"
 	GetProduct             SubCategory = "GetProduct"
 	// stores events
+	StoreHandleEvent           SubCategory = "StoreHandleEvent"
 	StoreCreated               SubCategory = "StoreCreated"
 	StoreParticipationEnabled  SubCategory = "StoreParticipationEnabled"
 	StoreParticipationDisabled SubCategory = "StoreParticipationDisabled"
@@ -106,9 +107,10 @@ const (
 	CompleteOrder SubCategory = "CompleteOrder"
 	GetOrder      SubCategory = "GetOrder"
 	// orders events
-	OnOrderCreated  SubCategory = "OnOrderCreated"
-	OnOrderReadied  SubCategory = "OnOrderReadied"
-	OnOrderCanceled SubCategory = "OnOrderCanceled"
+	OrderHandleEvent SubCategory = "OrderHandleEvent"
+	OnOrderCreated   SubCategory = "OnOrderCreated"
+	OnOrderReadied   SubCategory = "OnOrderReadied"
+	OnOrderCanceled  SubCategory = "OnOrderCanceled"
 
 	// Depot
 	CreateShoppingList   SubCategory = "CreateShoppingList"
