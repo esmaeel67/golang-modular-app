@@ -7,7 +7,6 @@ import (
 	"fmt"
 
 	"github.com/esmaeel67/golang-modular-app/depot/internal/domain"
-	"github.com/esmaeel67/golang-modular-app/internal/ddd"
 	"github.com/stackus/errors"
 )
 
@@ -27,11 +26,7 @@ func NewShoppingListRepository(tableName string, db *sql.DB) ShoppingListReposit
 
 func (r ShoppingListRepository) Find(ctx context.Context, id string) (*domain.ShoppingList, error) {
 	const query = "SELECT order_id, stops, assigned_bot_id, status FROM %s WHERE id = $1 LIMIT 1"
-	shoppingList := &domain.ShoppingList{
-		AggregateBase: ddd.AggregateBase{
-			ID: id,
-		},
-	}
+	shoppingList := domain.NewShoppingList(id)
 	var stops []byte
 	var status string
 
@@ -44,29 +39,6 @@ func (r ShoppingListRepository) Find(ctx context.Context, id string) (*domain.Sh
 	if err != nil {
 		return nil, err
 	}
-
-	err = json.Unmarshal(stops, &shoppingList.Stops)
-	if err != nil {
-		return nil, errors.ErrInternalServerError.Err(err)
-	}
-
-	return shoppingList, nil
-}
-
-func (r ShoppingListRepository) FindByOrderID(ctx context.Context, orderID string) (*domain.ShoppingList, error) {
-	const query = "SELECT id, stops, assigned_bot_id, status FROM %s WHERE order_id = $1 LIMIT 1"
-	shoppingList := &domain.ShoppingList{
-		OrderID: orderID,
-	}
-	var stops []byte
-	var status string
-
-	err := r.db.QueryRowContext(ctx, r.table(query), orderID).Scan(&shoppingList.ID, &stops, &shoppingList.AssignedBotID, &status)
-	if err != nil {
-		return nil, errors.ErrInternalServerError.Err(err)
-	}
-
-	shoppingList.Status = domain.ToShoppingListStatus(status)
 
 	err = json.Unmarshal(stops, &shoppingList.Stops)
 	if err != nil {

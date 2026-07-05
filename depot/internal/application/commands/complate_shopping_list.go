@@ -13,10 +13,10 @@ type CompleteShoppingListCommand struct {
 
 type CompleteShoppingListHandler struct {
 	shoppingLists   domain.ShoppingListRepository
-	domainPublisher ddd.EventPublisher
+	domainPublisher ddd.EventPublisher[ddd.AggregateEvent]
 }
 
-func NewCompleteShoppingListHandler(shoppingLists domain.ShoppingListRepository, domainPublisher ddd.EventPublisher,
+func NewCompleteShoppingListHandler(shoppingLists domain.ShoppingListRepository, domainPublisher ddd.EventPublisher[ddd.AggregateEvent],
 ) CompleteShoppingListHandler {
 	return CompleteShoppingListHandler{
 		shoppingLists:   shoppingLists,
@@ -39,7 +39,7 @@ func (h CompleteShoppingListHandler) CompleteShoppingList(ctx context.Context, c
 	}
 
 	// publish domain event
-	if err = h.domainPublisher.Publish(ctx, list.GetEvents()...); err != nil {
+	if err = h.domainPublisher.Publish(ctx, list.Events()...); err != nil {
 		return err
 	}
 

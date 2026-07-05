@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/esmaeel67/golang-modular-app/depot/internal/domain"
+	"github.com/esmaeel67/golang-modular-app/internal/ddd"
 )
 
 type CancelShoppingListCommand struct {
@@ -11,12 +12,14 @@ type CancelShoppingListCommand struct {
 }
 
 type CancelShoppingListHandler struct {
-	shoppingLists domain.ShoppingListRepository
+	shoppingLists   domain.ShoppingListRepository
+	domainPublisher ddd.EventPublisher[ddd.AggregateEvent]
 }
 
-func NewCancelShoppingListHandler(shoppingLists domain.ShoppingListRepository) CancelShoppingListHandler {
+func NewCancelShoppingListHandler(shoppingLists domain.ShoppingListRepository, domainPublisher ddd.EventPublisher[ddd.AggregateEvent]) CancelShoppingListHandler {
 	return CancelShoppingListHandler{
-		shoppingLists: shoppingLists,
+		shoppingLists:   shoppingLists,
+		domainPublisher: domainPublisher,
 	}
 }
 
@@ -31,5 +34,13 @@ func (h CancelShoppingListHandler) CancelShoppingList(ctx context.Context, cmd C
 		return err
 	}
 
-	return h.shoppingLists.Update(ctx, list)
+	if err = h.shoppingLists.Update(ctx, list); err != nil {
+		return err
+	}
+
+	// publish domain events
+	if err = h.domainPublisher.Publish(ctx, list.Events()...); err != nil {
+		return err
+	}
+	return nil
 }

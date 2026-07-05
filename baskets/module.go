@@ -99,4 +99,5 @@ func registrations(reg registry.Registry) error {
 		return err
 	}
 
+	return nil
 }
