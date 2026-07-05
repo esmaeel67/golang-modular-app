@@ -7,21 +7,27 @@ import (
 	"github.com/esmaeel67/golang-modular-app/internal/ddd"
 )
 
-type OrderHandlers struct {
+type OrderHandlers[T ddd.AggregateEvent] struct {
 	orders domain.OrderRepository
-	ignoreUnimplementedDomainEvents
 }
 
-var _ DomainEventHandlers = (*OrderHandlers)(nil)
+var _ ddd.EventHandler[ddd.AggregateEvent] = (*OrderHandlers[ddd.AggregateEvent])(nil)
 
-func NewOrderHandler(orders domain.OrderRepository) OrderHandlers {
-	return OrderHandlers{
+func NewOrderHandler(orders domain.OrderRepository) OrderHandlers[ddd.AggregateEvent] {
+	return OrderHandlers[ddd.AggregateEvent]{
 		orders: orders,
 	}
 }
+func (h OrderHandlers[T]) HandleEvent(ctx context.Context, event T) error {
+	switch event.EventName() {
+	case domain.BasketCheckedOutEvent:
+		return h.OnBasketCheckedOut(ctx, event)
+	}
+	return nil
+}
 
-func (h OrderHandlers) OnBasketCheckedOut(ctx context.Context, event ddd.Event) error {
-	checkedOut := event.(*domain.BasketCheckOut)
-	_, err := h.orders.Save(ctx, checkedOut.Basket)
+func (h OrderHandlers[T]) OnBasketCheckedOut(ctx context.Context, event ddd.AggregateEvent) error {
+	checkedOut := event.Payload().(*domain.BasketCheckedOut)
+	_, err := h.orders.Save(ctx, checkedOut.PaymentID, checkedOut.CustomerID, checkedOut.Items)
 	return err
 }
