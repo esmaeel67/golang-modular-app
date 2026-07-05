@@ -117,6 +117,7 @@ const (
 	CompleteShoppingList SubCategory = "CompleteShoppingList"
 	GetShoppingList      SubCategory = "GetShoppingList"
 	// depot events
+	DepotHandleEvent        SubCategory = "DepotHandleEvent"
 	OnShoppingListCreated   SubCategory = "OnShoppingListCreated"
 	OnShoppingListCanceled  SubCategory = "OnShoppingListCanceled"
 	OnShoppingListAssigned  SubCategory = "OnShoppingListAssigned"
