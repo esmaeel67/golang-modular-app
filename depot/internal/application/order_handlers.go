@@ -24,6 +24,7 @@ func (h OrderHandlers[T]) HandleEvent(ctx context.Context, event T) error {
 	case domain.ShoppingListCompletedEvent:
 		return h.OnShoppingListCompleted(ctx, event)
 	}
+	return nil
 }
 
 func (h OrderHandlers[T]) OnShoppingListCompleted(ctx context.Context, event ddd.AggregateEvent) error {

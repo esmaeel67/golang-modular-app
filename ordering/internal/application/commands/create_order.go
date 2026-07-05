@@ -3,7 +3,6 @@ package commands
 import (
 	"context"
 
-	"github.com/esmaeel67/golang-modular-app/internal/ddd"
 	"github.com/esmaeel67/golang-modular-app/ordering/internal/domain"
 	"github.com/stackus/errors"
 )
@@ -12,31 +11,29 @@ type CreateOrderCommand struct {
 	ID         string
 	CustomerID string
 	PaymentID  string
-	Items      []*domain.Item
+	Items      []domain.Item
 }
 
 type CreateOrderHandler struct {
-	orders          domain.OrderRepository
-	customers       domain.CustomerRepository
-	payments        domain.PaymentRepository
-	shopping        domain.ShoppingRepository
-	domainPublisher ddd.EventPublisher
+	orders    domain.OrderRepository
+	customers domain.CustomerRepository
+	payments  domain.PaymentRepository
+	shopping  domain.ShoppingRepository
 }
 
 func NewCreateOrderHandler(orders domain.OrderRepository, customers domain.CustomerRepository,
-	payments domain.PaymentRepository, shopping domain.ShoppingRepository, domainPublisher ddd.EventPublisher,
+	payments domain.PaymentRepository, shopping domain.ShoppingRepository,
 ) CreateOrderHandler {
 	return CreateOrderHandler{
-		orders:          orders,
-		customers:       customers,
-		payments:        payments,
-		shopping:        shopping,
-		domainPublisher: domainPublisher,
+		orders:    orders,
+		customers: customers,
+		payments:  payments,
+		shopping:  shopping,
 	}
 }
 
 func (h CreateOrderHandler) CreateOrder(ctx context.Context, cmd CreateOrderCommand) error {
-	order, err := domain.CreateOrder(cmd.ID, cmd.CustomerID, cmd.PaymentID, cmd.Items)
+	order, err := h.orders.Load(ctx, cmd.ID)
 	if err != nil {
 		return errors.Wrap(err, "create order command")
 	}
@@ -52,18 +49,19 @@ func (h CreateOrderHandler) CreateOrder(ctx context.Context, cmd CreateOrderComm
 	}
 
 	// scheduleShopping
-	if order.ShoppingID, err = h.shopping.Create(ctx, order); err != nil {
+	var shoppingID string
+	if shoppingID, err = h.shopping.Create(ctx, cmd.ID, cmd.Items); err != nil {
 		return errors.Wrap(err, "order shopping scheduling")
 	}
 
 	// orderCreation
+	err = order.CreateOrder(cmd.ID, cmd.CustomerID, cmd.PaymentID, shoppingID, cmd.Items)
 	if err = h.orders.Save(ctx, order); err != nil {
-		return errors.Wrap(err, "order creation")
+		return errors.Wrap(err, "create order command")
 	}
 
-	// publish domain event
-	if err = h.domainPublisher.Publish(ctx, order.GetEvents()...); err != nil {
-		return err
+	if err = h.orders.Save(ctx, order); err != nil {
+		return errors.Wrap(err, "order creation")
 	}
 
 	return nil

@@ -6,7 +6,6 @@ import (
 
 	"github.com/esmaeel67/golang-modular-app/internal/ddd"
 	"github.com/esmaeel67/golang-modular-app/internal/logger"
-	"github.com/stackus/errors"
 )
 
 type EventHandlers[T ddd.Event] struct {
@@ -26,15 +25,11 @@ func LogDomainEventHandlerAccess[T ddd.Event](handlers ddd.EventHandler[T], labe
 }
 
 func (h EventHandlers[T]) HandleEvent(ctx context.Context, event T) (err error) {
-	messageIn := fmt.Sprintf("--> Depot.%s.On(%s)", h.label, event.EventName())
-	h.logger.Info(logger.Depot, logger.DepotHandleEvent, messageIn, nil)
+	messageIn := fmt.Sprintf("--> Ordering.%s.On(%s)", h.label, event.EventName())
+	h.logger.Info(logger.Orders, logger.OrderHandleEvent, messageIn, nil)
 	defer func() {
-		messageOut := fmt.Sprintf("<-- Depot.%s.On(%s)", h.label, event.EventName())
-		if err != nil {
-			h.logger.Info(logger.Depot, logger.DepotHandleEvent, errors.Wrap(err, messageOut).Error(), nil)
-			return
-		}
-		h.logger.Info(logger.Depot, logger.DepotHandleEvent, messageOut, nil)
+		messageOut := fmt.Sprintf("<-- Ordering.%s.On(%s)", h.label, event.EventName())
+		h.logger.Info(logger.Orders, logger.OrderHandleEvent, messageOut, nil)
 	}()
 	return h.EventHandler.HandleEvent(ctx, event)
 }

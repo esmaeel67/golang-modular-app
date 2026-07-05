@@ -3,7 +3,6 @@ package application
 import (
 	"context"
 
-	"github.com/esmaeel67/golang-modular-app/internal/ddd"
 	"github.com/esmaeel67/golang-modular-app/ordering/internal/application/commands"
 	"github.com/esmaeel67/golang-modular-app/ordering/internal/application/queries"
 	"github.com/esmaeel67/golang-modular-app/ordering/internal/domain"
@@ -42,13 +41,13 @@ type (
 var _ App = (*Application)(nil)
 
 func New(orders domain.OrderRepository, customers domain.CustomerRepository, payments domain.PaymentRepository,
-	invoices domain.InvoiceRepository, shopping domain.ShoppingRepository, domainPublisher ddd.EventPublisher) *Application {
+	invoices domain.InvoiceRepository, shopping domain.ShoppingRepository) *Application {
 	return &Application{
 		appCommands: appCommands{
-			CreateOrderHandler:   commands.NewCreateOrderHandler(orders, customers, payments, shopping, domainPublisher),
-			CancelOrderHandler:   commands.NewCancelOrderHandler(orders, shopping, domainPublisher),
-			ReadyOrderHandler:    commands.NewReadyOrderHandler(orders, domainPublisher),
-			CompleteOrderHandler: commands.NewCompleteOrderHandler(orders, domainPublisher),
+			CreateOrderHandler:   commands.NewCreateOrderHandler(orders, customers, payments, shopping),
+			CancelOrderHandler:   commands.NewCancelOrderHandler(orders, shopping),
+			ReadyOrderHandler:    commands.NewReadyOrderHandler(orders),
+			CompleteOrderHandler: commands.NewCompleteOrderHandler(orders),
 		},
 		appQueries: appQueries{
 			GetOrderHandler: queries.NewGetOrderHandler(orders),
