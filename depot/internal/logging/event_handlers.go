@@ -4,25 +4,24 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/esmaeel67/golang-modular-app/depot/internal/application"
 	"github.com/esmaeel67/golang-modular-app/internal/ddd"
 	"github.com/esmaeel67/golang-modular-app/internal/logger"
 	"github.com/stackus/errors"
 )
 
 type EventHandlers[T ddd.Event] struct {
-	application.DomainEventHandlers
+	ddd.EventHandler[T]
 	label  string
 	logger logger.Logger
 }
 
 var _ ddd.EventHandler[ddd.Event] = (*EventHandlers[ddd.Event])(nil)
 
-func LogDomainEventHandlerAccess[T ddd.Event](handlers application.DomainEventHandlers, label string, logger logger.Logger) EventHandlers[T] {
+func LogDomainEventHandlerAccess[T ddd.Event](handlers ddd.EventHandler[T], label string, logger logger.Logger) EventHandlers[T] {
 	return EventHandlers[T]{
-		DomainEventHandlers: handlers,
-		label:               label,
-		logger:              logger,
+		EventHandler: handlers,
+		label:        label,
+		logger:       logger,
 	}
 }
 
@@ -37,5 +36,5 @@ func (h EventHandlers[T]) HandleEvent(ctx context.Context, event T) (err error) 
 		}
 		h.logger.Info(logger.Depot, logger.DepotHandleEvent, messageOut, nil)
 	}()
-	return h.DomainEventHandlers.OnShoppingListCreated(ctx, event)
+	return h.EventHandler.HandleEvent(ctx, event)
 }
