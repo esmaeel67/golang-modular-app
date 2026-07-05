@@ -18,15 +18,15 @@ func NewShoppingRepository(conn *grpc.ClientConn) ShoppingRepository {
 	return ShoppingRepository{client: depotpb.NewDepotServiceClient(conn)}
 }
 
-func (r ShoppingRepository) Create(ctx context.Context, order *domain.Order) (string, error) {
-	items := make([]*depotpb.OrderItem, 0, len(order.Items))
+func (r ShoppingRepository) Create(ctx context.Context, orderID string, orderItems []domain.Item) (string, error) {
+	items := make([]*depotpb.OrderItem, 0, len(orderItems))
 
-	for _, item := range order.Items {
-		items = append(items, r.itemFromDomain(item))
+	for i, item := range orderItems {
+		items[i] = r.itemFromDomain(item)
 	}
 
 	response, err := r.client.CreateShoppingList(ctx, &depotpb.CreateShoppingListRequest{
-		OrderId: order.ID,
+		OrderId: orderID,
 		Items:   items,
 	})
 	if err != nil {
@@ -41,7 +41,7 @@ func (r ShoppingRepository) Cancel(ctx context.Context, shoppingID string) error
 	return err
 }
 
-func (r ShoppingRepository) itemFromDomain(item *domain.Item) *depotpb.OrderItem {
+func (r ShoppingRepository) itemFromDomain(item domain.Item) *depotpb.OrderItem {
 	return &depotpb.OrderItem{
 		ProductId: item.ProductID,
 		StoreId:   item.StoreID,
