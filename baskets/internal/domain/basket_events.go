@@ -1,43 +1,45 @@
 package domain
 
+const (
+	BasketStartedEvent     = "baskets.BasketStarted"
+	BasketItemAddedEvent   = "baskets.BasketItemAdded"
+	BasketItemRemovedEvent = "baskets.BasketItemRemoved"
+	BasketCanceledEvent    = "baskets.BasketCanceled"
+	BasketCheckedOutEvent  = "baskets.BasketCheckedOut"
+)
+
 type BasketStarted struct {
-	Basket *Basket
+	CustomerID string
 }
 
-func (BasketStarted) EventName() string {
-	return "baskets.BasketStarted"
+func (BasketStarted) Key() string {
+	return BasketStartedEvent
 }
 
 type BasketItemAdded struct {
-	Basket *Basket
-	Item   Item
+	Item Item
 }
 
-func (BasketItemAdded) EventName() string {
-	return "baskets.BasketItemAdded"
-}
+// Key implements registry.Registerable
+func (BasketItemAdded) Key() string { return BasketItemAddedEvent }
 
 type BasketItemRemoved struct {
-	Basket *Basket
-	Item   Item
+	ProductID string
+	Quantity  int
 }
 
-func (BasketItemRemoved) EventName() string {
-	return "baskets.BasketItemRemoved"
-}
+func (BasketItemRemoved) Key() string { return BasketItemRemovedEvent }
 
 type BasketCanceled struct {
-	Basket *Basket
 }
 
-func (BasketCanceled) EventName() string {
-	return "baskets.BasketCanceled"
+func (BasketCanceled) Key() string { return BasketCanceledEvent }
+
+type BasketCheckedOut struct {
+	PaymentID  string
+	CustomerID string
+	Items      map[string]Item
 }
 
-type BasketCheckOut struct {
-	Basket *Basket
-}
-
-func (BasketCheckOut) EventName() string {
-	return "baskets.BasketCheckOut"
-}
+// Key implements registry.Registerable
+func (BasketCheckedOut) Key() string { return BasketCheckedOutEvent }

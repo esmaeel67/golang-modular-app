@@ -37,7 +37,7 @@ func (c ProtoSerde) RegisterKey(key string, v interface{}, options ...registry.B
 	return registry.RegisterKey(c.r, key, v, c.serialize, c.deserialize, options)
 }
 
-func (ProtoSerde) RegisterFactory(key string, fn func() interface{}, options ...registry.BuildOption) error {
+func (c ProtoSerde) RegisterFactory(key string, fn func() interface{}, options ...registry.BuildOption) error {
 	if v := fn(); v == nil {
 		return fmt.Errorf("%s factory returns a nil value", key)
 	} else if _, ok := v.(proto.Message); !ok {

@@ -1,11 +1,12 @@
 package domain
 
 import (
-	"sort"
-
 	"github.com/esmaeel67/golang-modular-app/internal/ddd"
+	"github.com/esmaeel67/golang-modular-app/internal/es"
 	"github.com/stackus/errors"
 )
+
+const BasketAggregate = "baskets.Basket"
 
 var (
 	ErrBasketHasNoItems         = errors.Wrap(errors.ErrBadRequest, "the basket has no item")
@@ -17,30 +18,24 @@ var (
 	ErrCustomerIDCannotBeBlank  = errors.Wrap(errors.ErrBadRequest, "the customer id cannot be blank")
 )
 
-type BasketStatus string
-
-const (
-	BasketUnknown    BasketStatus = ""
-	BasketOpen       BasketStatus = "open"
-	BasketCancelled  BasketStatus = "cancelled"
-	BasketCheckedOut BasketStatus = "checked_out"
-)
-
-func (s BasketStatus) String() string {
-	switch s {
-	case BasketOpen, BasketCancelled, BasketCheckedOut:
-		return string(s)
-	default:
-		return ""
-	}
-}
-
 type Basket struct {
-	ddd.AggregateBase
+	es.Aggregate
 	CustomerID string
 	PaymentID  string
-	Items      []Item
+	Items      map[string]Item
 	Status     BasketStatus
+}
+
+var _ interface {
+	es.EventApplier
+	es.Snapshotter
+} = (*Basket)(nil)
+
+func NewBasket(id string) *Basket {
+	return &Basket{
+		Aggregate: es.NewAggregate(id, BasketAggregate),
+		Items:     make(map[string]Item),
+	}
 }
 
 func StartBasket(id, customerID string) (*Basket, error) {
@@ -50,40 +45,32 @@ func StartBasket(id, customerID string) (*Basket, error) {
 	if customerID == "" {
 		return nil, ErrCustomerIDCannotBeBlank
 	}
-	basket := &Basket{
-		AggregateBase: ddd.AggregateBase{
-			ID: id,
-		},
+	basket := NewBasket(id)
+
+	basket.AddEvent(BasketStartedEvent, &BasketStarted{
 		CustomerID: customerID,
-		Status:     BasketOpen,
-		Items:      []Item{},
-	}
-	basket.AddEvent(&BasketStarted{
-		Basket: basket,
 	})
 	return basket, nil
 }
 
+func (Basket) Key() string {
+	return BasketAggregate
+}
+
 func (b *Basket) IsCancellable() bool {
-	return b.Status == BasketOpen
+	return b.Status == BasketIsOpen
 }
 
 func (b *Basket) IsOpen() bool {
-	return b.Status == BasketOpen
+	return b.Status == BasketIsOpen
 }
 
 func (b *Basket) Cancel() error {
-
 	if !b.IsCancellable() {
 		return ErrBasketCannotBeCancelled
 	}
 
-	b.Status = BasketCancelled
-	b.Items = []Item{}
-
-	b.AddEvent(&BasketCanceled{
-		Basket: b,
-	})
+	b.AddEvent(BasketCanceledEvent, &BasketCanceled{})
 
 	return nil
 }
@@ -99,23 +86,14 @@ func (b *Basket) Checkout(paymentID string) error {
 	if paymentID == "" {
 		return ErrPaymentIdCannotBeBlank
 	}
-	b.PaymentID = paymentID
-	b.Status = BasketCheckedOut
 
-	b.AddEvent(&BasketCheckOut{
-		Basket: b,
+	b.AddEvent(BasketCheckedOutEvent, &BasketCheckedOut{
+		PaymentID:  paymentID,
+		CustomerID: b.CustomerID,
+		Items:      b.Items,
 	})
 
 	return nil
-}
-
-func (b *Basket) hasProduct(product *Product) (int, bool) {
-	for i, item := range b.Items {
-		if item.ProductID == product.ID && item.StoreID == product.StoreID {
-			return i, true
-		}
-	}
-	return -1, false
 }
 
 func (b *Basket) AddItem(store *Store, product *Product, quantity int) error {
@@ -126,33 +104,15 @@ func (b *Basket) AddItem(store *Store, product *Product, quantity int) error {
 		return ErrQuantityCannotBeNegative
 	}
 
-	item := Item{
-		StoreID:      store.ID,
-		ProductID:    product.ID,
-		StoreName:    store.Name,
-		ProductName:  product.Name,
-		ProductPrice: product.Price,
-		Quantity:     quantity,
-	}
-	if i, exists := b.hasProduct(product); exists {
-		b.Items[i].Quantity += quantity
-	} else {
-		b.Items = append(b.Items, Item{
+	b.AddEvent(BasketItemAddedEvent, &BasketItemAdded{
+		Item: Item{
 			StoreID:      store.ID,
 			ProductID:    product.ID,
 			StoreName:    store.Name,
 			ProductName:  product.Name,
 			ProductPrice: product.Price,
 			Quantity:     quantity,
-		})
-		sort.Slice(b.Items, func(i, j int) bool {
-			return b.Items[i].StoreName <= b.Items[j].StoreName && b.Items[i].ProductName < b.Items[j].ProductName
-		})
-	}
-
-	b.AddEvent(&BasketItemAdded{
-		Basket: b,
-		Item:   item,
+		},
 	})
 	return nil
 }
@@ -166,21 +126,67 @@ func (b *Basket) RemoveItem(product *Product, quantity int) error {
 		return ErrQuantityCannotBeNegative
 	}
 
-	if i, exists := b.hasProduct(product); exists {
-
-		b.Items[i].Quantity = quantity
-
-		item := b.Items[i]
-		item.Quantity = quantity
-
-		if b.Items[i].Quantity < 1 {
-			b.Items = append(b.Items[:i], b.Items[i+1:]...)
-		}
-
-		b.AddEvent(&BasketItemRemoved{
-			Basket: b,
-			Item:   item,
+	if _, exists := b.Items[product.ID]; exists {
+		b.AddEvent(BasketItemRemovedEvent, &BasketItemRemoved{
+			ProductID: product.ID,
+			Quantity:  quantity,
 		})
 	}
 	return nil
+}
+
+func (b *Basket) ApplyEvent(event ddd.Event) error {
+	switch payload := event.Payload().(type) {
+	case *BasketStarted:
+		b.CustomerID = payload.CustomerID
+		b.Status = BasketIsOpen
+	case *BasketItemAdded:
+		if item, exists := b.Items[payload.Item.ProductID]; exists {
+			item.Quantity += payload.Item.Quantity
+			b.Items[payload.Item.ProductID] = item
+		} else {
+			b.Items[payload.Item.ProductID] = payload.Item
+		}
+	case *BasketItemRemoved:
+		if item, exists := b.Items[payload.ProductID]; exists {
+			if item.Quantity-payload.Quantity <= 1 {
+				delete(b.Items, payload.ProductID)
+			} else {
+				item.Quantity -= payload.Quantity
+				b.Items[payload.ProductID] = item
+			}
+		}
+	case *BasketCanceled:
+		b.Items = make(map[string]Item)
+		b.Status = BasketIsCanceled
+	case *BasketCheckedOut:
+		b.PaymentID = payload.PaymentID
+		b.Status = BasketIsCheckedOut
+	default:
+		return errors.ErrInternal.Msgf("%T received the event %s with unexpected payload %T", b, event.EventName(), payload)
+
+	}
+	return nil
+}
+
+func (b *Basket) ApplySnapshot(snapshot es.Snapshot) error {
+	switch ss := snapshot.(type) {
+	case *BasketV1:
+		b.CustomerID = ss.CustomerID
+		b.PaymentID = ss.PaymentID
+		b.Items = ss.Items
+		b.Status = ss.Status
+	default:
+		return errors.ErrInternal.Msgf("%T received the unexpected snapshot %T", b, snapshot)
+	}
+	return nil
+}
+
+func (b *Basket) ToSnapshot() es.Snapshot {
+	return &BasketV1{
+		CustomerID: b.CustomerID,
+		PaymentID:  b.PaymentID,
+		Items:      b.Items,
+		Status:     b.Status,
+	}
 }
