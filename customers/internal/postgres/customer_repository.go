@@ -6,7 +6,6 @@ import (
 	"fmt"
 
 	"github.com/esmaeel67/golang-modular-app/customers/internal/domain"
-	"github.com/esmaeel67/golang-modular-app/internal/ddd"
 )
 
 type CustomerRepository struct {
@@ -34,11 +33,7 @@ func (r CustomerRepository) Save(ctx context.Context, customer *domain.Customer)
 func (r CustomerRepository) Find(ctx context.Context, customerID string) (*domain.Customer, error) {
 	const query = "SELECT name, sms_number, enabled FROM %s WHERE id = $1 LIMIT 1"
 
-	customer := &domain.Customer{
-		AggregateBase: ddd.AggregateBase{
-			ID: customerID,
-		},
-	}
+	customer := domain.NewCustomer(customerID)
 
 	err := r.db.QueryRowContext(ctx, r.table(query), customerID).Scan(&customer.Name, &customer.SmsNumber, &customer.Enabled)
 
