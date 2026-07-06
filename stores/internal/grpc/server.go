@@ -152,7 +152,7 @@ func (s server) GetProduct(ctx context.Context, request *pb.GetProductRequest) (
 	return &pb.GetProductResponse{Product: s.productFromDomain(product)}, nil
 }
 
-func (s server) storeFromDomain(store *domain.Store) *pb.Store {
+func (s server) storeFromDomain(store *domain.MallStore) *pb.Store {
 	return &pb.Store{
 		Id:            store.ID,
 		Name:          store.Name,
@@ -161,7 +161,7 @@ func (s server) storeFromDomain(store *domain.Store) *pb.Store {
 	}
 }
 
-func (s server) productFromDomain(product *domain.Product) *pb.Product {
+func (s server) productFromDomain(product *domain.CatalogProduct) *pb.Product {
 	return &pb.Product{
 		Id:          product.ID,
 		StoreId:     product.StoreID,
