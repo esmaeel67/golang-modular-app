@@ -26,7 +26,7 @@ type ProductRebranded struct {
 }
 
 func (ProductRebranded) Key() string {
-	return ProductAddedEvent
+	return ProductRebrandedEvent
 }
 
 type ProductPriceChanged struct {

@@ -51,7 +51,7 @@ func CreateProduct(id, storeID, name, description, sku string, price float64) (*
 	return product, nil
 }
 
-func (p *Product) Key() string {
+func (p Product) Key() string {
 	return ProductAggregate
 }
 
