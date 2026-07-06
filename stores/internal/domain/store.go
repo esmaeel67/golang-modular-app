@@ -32,6 +32,7 @@ func NewStore(id string) *Store {
 		Aggregate: es.NewAggregate(id, StoreAggregate),
 	}
 }
+
 func CreateStore(id, name, location string) (*Store, error) {
 
 	if name == "" {
@@ -50,6 +51,9 @@ func CreateStore(id, name, location string) (*Store, error) {
 	})
 
 	return store, nil
+}
+func (s Store) Key() string {
+	return StoreAggregate
 }
 
 func (s *Store) EnableParticipation() (err error) {
