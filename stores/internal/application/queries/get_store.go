@@ -11,14 +11,14 @@ type GetStore struct {
 }
 
 type GetStoreHandler struct {
-	stores domain.StoreRepository
+	mall domain.MallRepository
 }
 
-func NewGetStoreHandler(stores domain.StoreRepository) GetStoreHandler {
+func NewGetStoreHandler(mall domain.MallRepository) GetStoreHandler {
 	return GetStoreHandler{
-		stores: stores,
+		mall: mall,
 	}
 }
-func (h GetStoreHandler) GetStore(ctx context.Context, query GetStore) (*domain.Store, error) {
-	return h.stores.Find(ctx, query.ID)
+func (h GetStoreHandler) GetStore(ctx context.Context, query GetStore) (*domain.MallStore, error) {
+	return h.mall.Find(ctx, query.ID)
 }

@@ -33,7 +33,7 @@ func (a Application) CreateStore(ctx context.Context, cmd commands.CreateStore) 
 	return a.App.CreateStore(ctx, cmd)
 }
 
-func (a Application) GetStore(ctx context.Context, query queries.GetStore) (store *domain.Store, err error) {
+func (a Application) GetStore(ctx context.Context, query queries.GetStore) (store *domain.MallStore, err error) {
 	a.logger.Info(logger.Stores, logger.GetStore, "--> Stores.GetStore", nil)
 	defer func() {
 		if err != nil {
@@ -45,7 +45,7 @@ func (a Application) GetStore(ctx context.Context, query queries.GetStore) (stor
 	return a.App.GetStore(ctx, query)
 }
 
-func (a Application) GetStores(ctx context.Context, query queries.GetStores) (stores []*domain.Store, err error) {
+func (a Application) GetStores(ctx context.Context, query queries.GetStores) (stores []*domain.MallStore, err error) {
 	a.logger.Info(logger.Stores, logger.GetStores, "-> Stores.GetStores", nil)
 	defer func() {
 		if err != nil {
@@ -107,7 +107,7 @@ func (a Application) RemoveProduct(ctx context.Context, cmd commands.RemoveProdu
 	return a.App.RemoveProduct(ctx, cmd)
 }
 
-func (a Application) GetParticipatingStores(ctx context.Context, query queries.GetParticipatingStores) (store []*domain.Store, err error) {
+func (a Application) GetParticipatingStores(ctx context.Context, query queries.GetParticipatingStores) (store []*domain.MallStore, err error) {
 	a.logger.Info(logger.Stores, logger.GetParticipatingStores, "--> Stores.GetParticipatingStores", nil)
 	defer func() {
 		if err != nil {
@@ -120,7 +120,7 @@ func (a Application) GetParticipatingStores(ctx context.Context, query queries.G
 	return a.App.GetParticipatingStores(ctx, query)
 }
 
-func (a Application) GetCatalog(ctx context.Context, query queries.GetCatalogQuery) (products []*domain.Product, err error) {
+func (a Application) GetCatalog(ctx context.Context, query queries.GetCatalogQuery) (products []*domain.CatalogProduct, err error) {
 	a.logger.Info(logger.Stores, logger.GetCatalog, "--> Stores.GetCatalog", nil)
 	defer func() {
 		if err != nil {
@@ -132,7 +132,7 @@ func (a Application) GetCatalog(ctx context.Context, query queries.GetCatalogQue
 	return a.App.GetCatalog(ctx, query)
 }
 
-func (a Application) GetProduct(ctx context.Context, query queries.GetProductQuery) (product *domain.Product, err error) {
+func (a Application) GetProduct(ctx context.Context, query queries.GetProductQuery) (product *domain.CatalogProduct, err error) {
 	a.logger.Info(logger.Stores, logger.GetProduct, "--> Stores.GetProduct", nil)
 	defer func() {
 		if err != nil {

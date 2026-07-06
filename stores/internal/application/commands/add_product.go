@@ -3,7 +3,6 @@ package commands
 import (
 	"context"
 
-	"github.com/esmaeel67/golang-modular-app/internal/ddd"
 	"github.com/esmaeel67/golang-modular-app/stores/internal/domain"
 	"github.com/stackus/errors"
 )
@@ -18,33 +17,19 @@ type AddProduct struct {
 }
 
 type AddProductHandler struct {
-	stores          domain.StoreRepository
-	products        domain.ProductRepository
-	domainPublisher ddd.EventPublisher
+	products domain.ProductRepository
 }
 
-func NewAddProductHandler(stores domain.StoreRepository, products domain.ProductRepository, domainPublisher ddd.EventPublisher) AddProductHandler {
-	return AddProductHandler{stores: stores, products: products, domainPublisher: domainPublisher}
+func NewAddProductHandler(products domain.ProductRepository) AddProductHandler {
+	return AddProductHandler{products: products}
 }
 
 func (h AddProductHandler) AddProduct(ctx context.Context, cmd AddProduct) error {
-	_, err := h.stores.Find(ctx, cmd.StoreID)
-	if err != nil {
-		return errors.Wrap(err, "error adding product(store not found)")
-	}
 	product, err := domain.CreateProduct(cmd.ID, cmd.StoreID, cmd.Name, cmd.Description, cmd.SKU, cmd.Price)
 
 	if err != nil {
 		return errors.Wrap(err, "error adding product")
 	}
 
-	if err = h.products.AddProduct(ctx, product); err != nil {
-		return errors.Wrap(err, "error adding product")
-	}
-
-	if err = h.domainPublisher.Publish(ctx, product.GetEvents()...); err != nil {
-		return err
-	}
-
-	return nil
+	return errors.Wrap(h.products.Save(ctx, product), "error adding product")
 }
