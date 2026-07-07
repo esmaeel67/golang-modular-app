@@ -19,9 +19,15 @@ type AppConfig struct {
 	Environment     string
 	LogLevel        string `envconfig:"LOG_LEVEL" default:"DEBUG"`
 	PG              PGConfig
+	Nats            NatsConfig
 	Rpc             rpc.RpcConfig
 	Web             web.WebConfig
 	ShutdownTimeout time.Duration `envconfig:"SHUTDOWN_TIMEOUT" default:"30s"`
+}
+
+type NatsConfig struct {
+	URL    string `required:"true"`
+	Stream string `default:"mallbots"`
 }
 
 func GetConfig() *AppConfig {
