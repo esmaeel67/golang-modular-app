@@ -121,6 +121,55 @@ func (s *Stream) Subscribe(topicName string, handler am.MessageHandlerFunc[am.Ra
 
 func (s *Stream) handleMsg(cfg am.SubscriberConfig, handler am.MessageHandler[am.RawMessage]) func(*nats.Msg) {
 	return func(natsMsg *nats.Msg) {
+		var err error
 
+		m := &StreamMessage{}
+		err = proto.Unmarshal(natsMsg.Data, m)
+		if err != nil {
+			// TODO Nak?... logging?
+			return
+		}
+
+		msg := &rawMessage{
+			id:       m.GetId(),
+			name:     m.GetName(),
+			data:     m.GetData(),
+			acked:    false,
+			ackFn:    func() error { return natsMsg.Ack() },
+			nackFn:   func() error { return natsMsg.Nak() },
+			extendFn: func() error { return natsMsg.InProgress() },
+			killFn:   func() error { return natsMsg.Term() },
+		}
+
+		wCtx, cancel := context.WithTimeout(context.Background(), cfg.AckWait())
+		defer cancel()
+
+		errc := make(chan error)
+		go func() {
+			errc <- handler.HandleMessage(wCtx, msg)
+		}()
+
+		if cfg.AckType() == am.AckTypeAuto {
+			err = msg.Ack()
+			if err != nil {
+				//TODO: logging
+			}
+		}
+
+		select {
+		case err = <-errc:
+			if err == nil {
+				if ackErr := msg.Ack(); ackErr != nil {
+					//TODO: logging?
+				}
+				return
+			}
+			if nakErr := msg.NAck(); nakErr != nil {
+				//TODO: logging
+			}
+		case <-wCtx.Done():
+			//TODO: logging
+			return
+		}
 	}
 }
