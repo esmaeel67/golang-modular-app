@@ -74,3 +74,53 @@ func (s *Stream) Publish(ctx context.Context, topicName string, rawMsg am.RawMes
 	return nil
 
 }
+
+func (s *Stream) Subscribe(topicName string, handler am.MessageHandlerFunc[am.RawMessage], options ...am.SubscriberOption) error {
+	var err error
+
+	subCfg := am.NewSubscriberConfig(options)
+
+	opts := []nats.SubOpt{
+		nats.MaxDeliver(subCfg.MaxRedeliver()),
+	}
+	cfg := &nats.ConsumerConfig{
+		MaxDeliver: subCfg.MaxRedeliver(),
+	}
+	if groupName := subCfg.GroupName(); groupName != "" {
+		cfg.DeliverSubject = groupName
+		cfg.DeliverGroup = groupName
+		cfg.Durable = groupName
+
+		opts = append(opts, nats.Bind(s.streamName, groupName), nats.Durable(groupName))
+	}
+
+	if ackType := subCfg.AckType(); ackType != am.AckTypeAuto {
+		ackWait := subCfg.AckWait()
+
+		cfg.AckPolicy = nats.AckExplicitPolicy
+		cfg.AckWait = ackWait
+
+		opts = append(opts, nats.AckExplicit(), nats.AckWait(ackWait))
+	} else {
+		cfg.AckPolicy = nats.AckNonePolicy
+		opts = append(opts, nats.AckNone())
+	}
+
+	_, err = s.js.AddConsumer(s.streamName, cfg)
+	if err != nil {
+		return err
+	}
+
+	if groupName := subCfg.GroupName(); groupName == "" {
+		_, err = s.js.Subscribe(topicName, s.handleMsg(subCfg, handler), opts...)
+	} else {
+		_, err = s.js.QueueSubscribe(topicName, groupName, s.handleMsg(subCfg, handler), opts...)
+	}
+	return nil
+}
+
+func (s *Stream) handleMsg(cfg am.SubscriberConfig, handler am.MessageHandler[am.RawMessage]) func(*nats.Msg) {
+	return func(natsMsg *nats.Msg) {
+
+	}
+}
