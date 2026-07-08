@@ -1,7 +1,6 @@
 package storespb
 
 import (
-	"github.com/esmaeel67/golang-modular-app/baskets/internal/domain"
 	"github.com/esmaeel67/golang-modular-app/internal/registry"
 	"github.com/esmaeel67/golang-modular-app/internal/registry/serdes"
 )
@@ -25,33 +24,30 @@ const (
 func Registrations(reg registry.Registry) error {
 	serde := serdes.NewJsonSerde(reg)
 
-	// Basket
-	if err := serde.Register(domain.Basket{}, func(v interface{}) error {
-		basket := v.(*domain.Basket)
-		basket.Items = make(map[string]domain.Item)
-		return nil
-	}); err != nil {
+	// Store events
+	if err := serde.Register(&StoreCreated{}); err != nil {
 		return err
 	}
-	// basket events
-	if err := serde.Register(domain.BasketStarted{}); err != nil {
+	if err := serde.Register(&StoreParticipationToggled{}); err != nil {
 		return err
 	}
-	if err := serde.Register(domain.BasketCanceled); err != nil {
-		return err
-	}
-	if err := serde.Register(domain.BasketCheckedOut{}); err != nil {
-		return err
-	}
-	if err := serde.Register(domain.BasketItemAdded{}); err != nil {
-		return err
-	}
-	if err := serde.Register(domain.BasketItemRemoved{}); err != nil {
+	if err := serde.Register(&StoreRebranded{}); err != nil {
 		return err
 	}
 
-	// basket snapshots
-	if err := serde.RegisterKey(domain.BasketV1{}.SnapshotName(), domain.BasketV1{}); err != nil {
+	if err := serde.Register(&ProductAdded{}); err != nil {
+		return err
+	}
+	if err := serde.Register(&ProductRebranded{}); err != nil {
+		return err
+	}
+	if err := serde.RegisterKey(ProductPriceIncreasedEvent, &ProductPriceChanged{}); err != nil {
+		return err
+	}
+	if err := serde.RegisterKey(ProductPriceDecreasedEvent, &ProductPriceChanged{}); err != nil {
+		return err
+	}
+	if err := serde.Register(&ProductRemoved{}); err != nil {
 		return err
 	}
 	return nil
