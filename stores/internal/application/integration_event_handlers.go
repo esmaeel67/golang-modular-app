@@ -28,7 +28,9 @@ func (h IntegrationEventHandlers[T]) HandleEvent(ctx context.Context, event T) e
 	case domain.StoreParticipationEnabledEvent:
 		return h.onStoreParticipationEnabled(ctx, event)
 	case domain.StoreParticipationDisabledEvent:
-		return h.onStoreParticipationDisabled()
+		return h.onStoreParticipationDisabled(ctx, event)
+	case domain.StoreRebrandedEvent:
+		return h.onStoreRebranded(ctx, event)
 	}
 	return nil
 }
