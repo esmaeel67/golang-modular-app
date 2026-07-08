@@ -84,25 +84,25 @@ func (a Application) DisableParticipation(ctx context.Context, cmd commands.Disa
 }
 
 func (a Application) AddProduct(ctx context.Context, cmd commands.AddProduct) (err error) {
-	a.logger.Info(logger.Stores, logger.AddProduct, "--> Stores.AddProduct", nil)
+	a.logger.Info(logger.Stores, logger.ProductAdded, "--> Stores.ProductAdded", nil)
 	defer func() {
 		if err != nil {
-			a.logger.Info(logger.Stores, logger.GetParticipatingStores, errors.Wrap(err, "<-- Stores.AddProduct").Error(), nil)
+			a.logger.Info(logger.Stores, logger.ProductAdded, errors.Wrap(err, "<-- Stores.AddProduct").Error(), nil)
 			return
 		}
-		a.logger.Info(logger.Stores, logger.GetParticipatingStores, "<-- Stores.AddProduct", nil)
+		a.logger.Info(logger.Stores, logger.ProductAdded, "<-- Stores.AddProduct", nil)
 	}()
 	return a.App.AddProduct(ctx, cmd)
 }
 
 func (a Application) RemoveProduct(ctx context.Context, cmd commands.RemoveProductCommand) (err error) {
-	a.logger.Info(logger.Stores, logger.AddProduct, "--> Stores.RemoveProduct", nil)
+	a.logger.Info(logger.Stores, logger.ProductRemoved, "--> Stores.ProductRemoved", nil)
 	defer func() {
 		if err != nil {
-			a.logger.Info(logger.Stores, logger.GetParticipatingStores, errors.Wrap(err, "<-- Stores.RemoveProduct").Error(), nil)
+			a.logger.Info(logger.Stores, logger.ProductRemoved, errors.Wrap(err, "<-- Stores.ProductRemoved").Error(), nil)
 			return
 		}
-		a.logger.Info(logger.Stores, logger.GetParticipatingStores, "<-- Stores.RemoveProduct", nil)
+		a.logger.Info(logger.Stores, logger.ProductRemoved, "<-- Stores.ProductRemoved", nil)
 	}()
 	return a.App.RemoveProduct(ctx, cmd)
 }
@@ -136,10 +136,10 @@ func (a Application) GetProduct(ctx context.Context, query queries.GetProductQue
 	a.logger.Info(logger.Stores, logger.GetProduct, "--> Stores.GetProduct", nil)
 	defer func() {
 		if err != nil {
-			a.logger.Info(logger.Stores, logger.GetProduct, errors.Wrap(err, "<-- Stores.GetParticipatingStores").Error(), nil)
+			a.logger.Info(logger.Stores, logger.GetProduct, errors.Wrap(err, "<-- Stores.GetProduct").Error(), nil)
 			return
 		}
-		a.logger.Info(logger.Stores, logger.GetProduct, "<-- Stores.GetParticipatingStores", nil)
+		a.logger.Info(logger.Stores, logger.GetProduct, "<-- Stores.GetProduct", nil)
 	}()
 	return a.App.GetProduct(ctx, query)
 }
