@@ -3,8 +3,10 @@ package stores
 import (
 	"context"
 
+	"github.com/esmaeel67/golang-modular-app/internal/am"
 	"github.com/esmaeel67/golang-modular-app/internal/ddd"
 	"github.com/esmaeel67/golang-modular-app/internal/es"
+	"github.com/esmaeel67/golang-modular-app/internal/jetstream"
 	"github.com/esmaeel67/golang-modular-app/internal/monolith"
 	pg "github.com/esmaeel67/golang-modular-app/internal/postgres"
 	"github.com/esmaeel67/golang-modular-app/internal/registry"
@@ -15,6 +17,7 @@ import (
 	"github.com/esmaeel67/golang-modular-app/stores/internal/handlers"
 	"github.com/esmaeel67/golang-modular-app/stores/internal/logging"
 	"github.com/esmaeel67/golang-modular-app/stores/internal/postgres"
+	"github.com/esmaeel67/golang-modular-app/stores/storespb"
 )
 
 type Module struct {
@@ -27,6 +30,10 @@ func (m *Module) Startup(ctx context.Context, mono monolith.Monolith) error {
 	if err != nil {
 		return err
 	}
+	if err = storespb.Registrations(reg); err != nil {
+		return err
+	}
+	eventStream := am.NewEventStream(reg, jetstream.NewStream(mono.Config().Nats.Stream, mono.JS()))
 	domainDispatcher := ddd.NewEventDispatcher[ddd.AggregateEvent]()
 	aggregateStore := es.AggregateStoreWithMiddleware(
 		pg.NewEventStore("events", mono.DB(), reg),
@@ -36,7 +43,6 @@ func (m *Module) Startup(ctx context.Context, mono monolith.Monolith) error {
 
 	stores := es.NewAggregateRepository[*domain.Store](domain.StoreAggregate, reg, aggregateStore)
 	products := es.NewAggregateRepository[*domain.Product](domain.ProductAggregate, reg, aggregateStore)
-
 	catalog := postgres.NewCatalogRepository("products", mono.DB())
 	mall := postgres.NewMallRepository("stores", mono.DB())
 
@@ -54,6 +60,11 @@ func (m *Module) Startup(ctx context.Context, mono monolith.Monolith) error {
 		"Mall",
 		mono.Logger(),
 	)
+	// added integration event handler
+	integrationEventHandlers := logging.LogEventHandlerAccess[ddd.AggregateEvent](
+		application.NewIntegrationEventHandlers(eventStream),
+		"IntegrationEvents", mono.Logger(),
+	)
 
 	if err := grpc.RegisterService(ctx, app, mono.RPC()); err != nil {
 		return err
@@ -61,6 +72,7 @@ func (m *Module) Startup(ctx context.Context, mono monolith.Monolith) error {
 
 	handlers.RegisterCatalogHandlers(catalogHandlers, domainDispatcher)
 	handlers.RegisterMallHandlers(mallHandlers, domainDispatcher)
+	handlers.RegisterIntegrationEventHandlers(integrationEventHandlers, domainDispatcher)
 
 	return nil
 }
