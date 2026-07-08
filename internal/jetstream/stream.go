@@ -75,7 +75,7 @@ func (s *Stream) Publish(ctx context.Context, topicName string, rawMsg am.RawMes
 
 }
 
-func (s *Stream) Subscribe(topicName string, handler am.MessageHandlerFunc[am.RawMessage], options ...am.SubscriberOption) error {
+func (s *Stream) Subscribe(topicName string, handler am.MessageHandler[am.RawMessage], options ...am.SubscriberOption) error {
 	var err error
 
 	subCfg := am.NewSubscriberConfig(options)
