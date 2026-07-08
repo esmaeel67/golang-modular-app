@@ -25,6 +25,10 @@ func (h IntegrationEventHandlers[T]) HandleEvent(ctx context.Context, event T) e
 	switch event.EventName() {
 	case domain.StoreCreatedEvent:
 		return h.onStoreCreated(ctx, event)
+	case domain.StoreParticipationEnabledEvent:
+		return h.onStoreParticipationEnabled(ctx, event)
+	case domain.StoreParticipationDisabledEvent:
+		return h.onStoreParticipationDisabled()
 	}
 	return nil
 }
@@ -36,5 +40,30 @@ func (h IntegrationEventHandlers[T]) onStoreCreated(ctx context.Context, event d
 			Id:       event.ID(),
 			Name:     payload.Name,
 			Location: payload.Location,
+		}))
+}
+
+func (h IntegrationEventHandlers[T]) onStoreParticipationEnabled(ctx context.Context, event ddd.AggregateEvent) error {
+	return h.publisher.Publish(ctx, storespb.StoreAggregateChannel,
+		ddd.NewEvent(storespb.StoreParticipatingToggledEvent, &storespb.StoreParticipationToggled{
+			Id:            event.ID(),
+			Participating: true,
+		}))
+}
+
+func (h IntegrationEventHandlers[T]) onStoreParticipationDisabled(ctx context.Context, event ddd.AggregateEvent) error {
+	return h.publisher.Publish(ctx, storespb.StoreAggregateChannel,
+		ddd.NewEvent(storespb.StoreParticipatingToggledEvent, &storespb.StoreParticipationToggled{
+			Id:            event.ID(),
+			Participating: false,
+		}))
+}
+
+func (h IntegrationEventHandlers[T]) onStoreRebranded(ctx context.Context, event ddd.AggregateEvent) error {
+	payload := event.Payload().(*domain.StoreRebranded)
+	return h.publisher.Publish(ctx, storespb.StoreAggregateChannel,
+		ddd.NewEvent(storespb.StoreRebrandedEvent, &storespb.StoreRebranded{
+			Id:   event.ID(),
+			Name: payload.Name,
 		}))
 }
