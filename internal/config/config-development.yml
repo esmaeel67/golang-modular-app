@@ -1,0 +1,26 @@
+server:
+  runMode: release
+  shutdownTimeout: 30s
+postgres:
+  host: localhost
+  port: 5432
+  user: postgres
+  password: admin
+  dbName: car_sale_db
+  sslMode: disable
+  maxIdleConns: 15
+  maxOpenConns: 100
+  connMaxLifetime: 5 
+goose:
+  driver: "postgres"
+  debug: true
+nats:
+  host: localhost
+  port: 4222
+  stream: "mallbots"
+web:
+  host: localhost
+  port: 8080
+rpc:
+  host: "0.0.0.0"
+  port: 8086

@@ -15,6 +15,7 @@ import (
 	"github.com/esmaeel67/golang-modular-app/internal/rpc"
 	"github.com/esmaeel67/golang-modular-app/internal/waiter"
 	"github.com/esmaeel67/golang-modular-app/internal/web"
+	"github.com/esmaeel67/golang-modular-app/migrations"
 	"github.com/esmaeel67/golang-modular-app/notifications"
 	"github.com/esmaeel67/golang-modular-app/ordering"
 	"github.com/esmaeel67/golang-modular-app/payments"
@@ -22,6 +23,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/nats-io/nats.go"
+	"github.com/pressly/goose/v3"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
@@ -35,14 +37,12 @@ func main() {
 
 func run() error {
 
-	var cfg config.AppConfig
-	cfg, err := config.InitConfig()
-	if err != nil {
-		return err
-	}
-	m := app{cfg: cfg}
+	cfg := config.GetConfig()
+
+	m := app{cfg: *cfg}
 	// setup database connection // cfg.PG.Conn
-	m.db, err = sql.Open("pgx", cfg.PG.Conn)
+	var err error
+	m.db, err = sql.Open("pgx", cfg.Postgres.GetPostgresConn())
 	// m.db, err = sql.Open("pgx", "postgres://postgres:admin@localhost:5432/mallbots?sslmode=disable")
 	if err != nil {
 		return err
@@ -53,8 +53,14 @@ func run() error {
 			return
 		}
 	}(m.db)
+	// migration database
+	err = migrateDB(m.db, *cfg)
+	if err != nil {
+		return err
+	}
+	fmt.Println("FFFFFFFFFFFFF :", cfg.Nats.GetUrl())
 	// init nats & jetstream
-	m.nc, err = nats.Connect(cfg.Nats.URL)
+	m.nc, err = nats.Connect(cfg.Nats.GetUrl())
 	if err != nil {
 		return err
 	}
@@ -65,7 +71,7 @@ func run() error {
 	}
 
 	// logger config
-	m.logger = logger.NewLogger(&cfg)
+	m.logger = logger.NewLogger(cfg)
 
 	m.rpc = initRpc(cfg.Rpc)
 	m.mux = initMux(cfg.Web)
@@ -93,6 +99,21 @@ func run() error {
 	m.waiter.Add(m.waitForWeb, m.waitForRPC, m.waitForStream)
 
 	return m.waiter.Wait()
+}
+
+func migrateDB(db *sql.DB, cfg config.AppConfig) error {
+	goose.SetVerbose(cfg.Goose.Debug)
+	goose.SetBaseFS(migrations.FS)
+
+	if err := goose.SetDialect("postgres"); err != nil {
+		return err
+	}
+
+	if err := goose.Up(db, "."); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func initRpc(_ rpc.RpcConfig) *grpc.Server {
