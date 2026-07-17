@@ -19,6 +19,7 @@ import (
 	"github.com/esmaeel67/golang-modular-app/notifications"
 	"github.com/esmaeel67/golang-modular-app/ordering"
 	"github.com/esmaeel67/golang-modular-app/payments"
+	"github.com/esmaeel67/golang-modular-app/search"
 	"github.com/esmaeel67/golang-modular-app/stores"
 	"github.com/go-chi/chi/v5"
 	_ "github.com/jackc/pgx/v5/stdlib"
@@ -54,11 +55,10 @@ func run() error {
 		}
 	}(m.db)
 	// migration database
-	err = migrateDB(m.db, *cfg)
-	if err != nil {
-		return err
-	}
-	fmt.Println("FFFFFFFFFFFFF :", cfg.Nats.GetUrl())
+	// err = migrateDB(m.db, *cfg)
+	// if err != nil {
+	// 	return err
+	// }
 	// init nats & jetstream
 	m.nc, err = nats.Connect(cfg.Nats.GetUrl())
 	if err != nil {
@@ -85,6 +85,7 @@ func run() error {
 		&stores.Module{},
 		&ordering.Module{},
 		&payments.Module{},
+		&search.Module{},
 	}
 
 	if err = m.startupModules(); err != nil {
