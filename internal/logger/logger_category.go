@@ -20,6 +20,7 @@ const (
 	Payments        Category = "Payments"
 	Orders          Category = "Orders"
 	Depot           Category = "Depot"
+	Search          Category = "Search"
 )
 
 const (
@@ -125,6 +126,10 @@ const (
 	OnShoppingListCanceled  SubCategory = "OnShoppingListCanceled"
 	OnShoppingListAssigned  SubCategory = "OnShoppingListAssigned"
 	OnShoppingListCompleted SubCategory = "OnShoppingListCompleted"
+
+	// Search
+	SearchOrders SubCategory = "SearchOrders"
+	HandleEvent  SubCategory = "HandleEvent"
 )
 
 const (

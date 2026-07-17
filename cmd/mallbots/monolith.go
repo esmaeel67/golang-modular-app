@@ -87,7 +87,7 @@ func (a *app) waitForWeb(ctx context.Context) error {
 	group.Go(func() error {
 		<-gCtx.Done()
 		fmt.Println("Web server to be shutdown")
-		ctx, cancel := context.WithTimeout(context.Background(), a.cfg.ShutdownTimeout)
+		ctx, cancel := context.WithTimeout(context.Background(), a.cfg.Server.ShutdownTimeout)
 		defer cancel()
 
 		if err := webServer.Shutdown(ctx); err != nil {
