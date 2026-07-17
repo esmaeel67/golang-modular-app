@@ -14,7 +14,7 @@ const (
 	OrderCompletedEvent = "ordersapi.OrderCompleted"
 )
 
-func Registration(reg registry.Registry) error {
+func Registrations(reg registry.Registry) error {
 	serde := serdes.NewProtoSerde(reg)
 
 	// Order events
