@@ -43,7 +43,7 @@ func (r CustomerCacheRepository) Add(ctx context.Context, customerID, name strin
 	return err
 }
 
-func (r *CustomerCacheRepository) Find(ctx context.Context, customerID string) (*models.Customer, error) {
+func (r CustomerCacheRepository) Find(ctx context.Context, customerID string) (*models.Customer, error) {
 	const query = `SELECT name FROM %s WHERE id = $1 LIMIT 1`
 
 	customer := &models.Customer{

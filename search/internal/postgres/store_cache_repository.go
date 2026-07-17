@@ -27,7 +27,7 @@ func NewStoreCacheRepository(tableName string, db *sql.DB, fallback application.
 		fallback:  fallback,
 	}
 }
-func (r *StoreCacheRepository) Add(ctx context.Context, storeID, name string) error {
+func (r StoreCacheRepository) Add(ctx context.Context, storeID, name string) error {
 	const query = "INSERT INTO %s (id, name) VALUES ($1, $2)"
 
 	_, err := r.db.ExecContext(ctx, r.table(query), storeID, name)
@@ -41,14 +41,14 @@ func (r *StoreCacheRepository) Add(ctx context.Context, storeID, name string) er
 	}
 	return err
 }
-func (r *StoreCacheRepository) Rename(ctx context.Context, storeID, name string) error {
+func (r StoreCacheRepository) Rename(ctx context.Context, storeID, name string) error {
 	const query = "UPDATE %s SET name = $2 WHERE id = $1"
 
 	_, err := r.db.ExecContext(ctx, r.table(query), storeID, name)
 
 	return err
 }
-func (r *StoreCacheRepository) Find(ctx context.Context, storeID string) (*models.Store, error) {
+func (r StoreCacheRepository) Find(ctx context.Context, storeID string) (*models.Store, error) {
 	const query = "SELECT name FROM %s WHERE id = $1 LIMIT"
 
 	store := &models.Store{
