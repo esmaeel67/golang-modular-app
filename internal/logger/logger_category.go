@@ -21,6 +21,7 @@ const (
 	Orders          Category = "Orders"
 	Depot           Category = "Depot"
 	Search          Category = "Search"
+	Stream          Category = "Stream"
 )
 
 const (
@@ -130,6 +131,9 @@ const (
 	// Search
 	SearchOrders SubCategory = "SearchOrders"
 	HandleEvent  SubCategory = "HandleEvent"
+
+	// Stream
+	StreamError SubCategory = "StreamError"
 )
 
 const (
