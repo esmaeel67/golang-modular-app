@@ -33,7 +33,7 @@ func (m *Module) Startup(ctx context.Context, mono monolith.Monolith) error {
 	if err = storespb.Registrations(reg); err != nil {
 		return err
 	}
-	eventStream := am.NewEventStream(reg, jetstream.NewStream(mono.Config().Nats.Stream, mono.JS()))
+	eventStream := am.NewEventStream(reg, jetstream.NewStream(mono.Config().Nats.Stream, mono.JS(), mono.Logger()))
 	domainDispatcher := ddd.NewEventDispatcher[ddd.AggregateEvent]()
 	aggregateStore := es.AggregateStoreWithMiddleware(
 		pg.NewEventStore("events", mono.DB(), reg),
