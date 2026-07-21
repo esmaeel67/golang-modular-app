@@ -2,8 +2,10 @@ package jetstream
 
 import (
 	"context"
+	"sync"
 
 	"github.com/esmaeel67/golang-modular-app/internal/am"
+	"github.com/esmaeel67/golang-modular-app/internal/logger"
 	"github.com/nats-io/nats.go"
 	"google.golang.org/protobuf/proto"
 )
@@ -13,14 +15,17 @@ const maxRetries = 3
 type Stream struct {
 	streamName string
 	js         nats.JetStreamContext
+	mu         sync.Mutex
+	logger     logger.Logger
 }
 
-var _ am.MessageStream[am.RawMessage, am.RawMessage] = (*Stream)(nil)
+var _ am.RawMessageStream = (*Stream)(nil)
 
-func NewStream(streamName string, js nats.JetStreamContext) *Stream {
+func NewStream(streamName string, js nats.JetStreamContext, logger logger.Logger) *Stream {
 	return &Stream{
 		streamName: streamName,
 		js:         js,
+		logger:     logger,
 	}
 }
 
@@ -75,8 +80,11 @@ func (s *Stream) Publish(ctx context.Context, topicName string, rawMsg am.RawMes
 
 }
 
-func (s *Stream) Subscribe(topicName string, handler am.MessageHandler[am.RawMessage], options ...am.SubscriberOption) error {
+func (s *Stream) Subscribe(topicName string, handler am.RawMessageHandler, options ...am.SubscriberOption) error {
 	var err error
+
+	s.mu.Lock()
+	defer s.mu.Unlock()
 
 	subCfg := am.NewSubscriberConfig(options)
 
@@ -116,17 +124,18 @@ func (s *Stream) Subscribe(topicName string, handler am.MessageHandler[am.RawMes
 	} else {
 		_, err = s.js.QueueSubscribe(topicName, groupName, s.handleMsg(subCfg, handler), opts...)
 	}
+
 	return nil
 }
 
-func (s *Stream) handleMsg(cfg am.SubscriberConfig, handler am.MessageHandler[am.RawMessage]) func(*nats.Msg) {
+func (s *Stream) handleMsg(cfg am.SubscriberConfig, handler am.RawMessageHandler) func(*nats.Msg) {
 	return func(natsMsg *nats.Msg) {
 		var err error
 
 		m := &StreamMessage{}
 		err = proto.Unmarshal(natsMsg.Data, m)
 		if err != nil {
-			// TODO Nak?... logging?
+			s.logger.Warn(logger.Stream, logger.StreamError, "failed to unmarshal the *nats.Msg", nil)
 			return
 		}
 
@@ -152,7 +161,7 @@ func (s *Stream) handleMsg(cfg am.SubscriberConfig, handler am.MessageHandler[am
 		if cfg.AckType() == am.AckTypeAuto {
 			err = msg.Ack()
 			if err != nil {
-				//TODO: logging
+				s.logger.Warn(logger.Stream, logger.StreamError, "failed to auto-Ack a message", nil)
 			}
 		}
 
@@ -160,12 +169,13 @@ func (s *Stream) handleMsg(cfg am.SubscriberConfig, handler am.MessageHandler[am
 		case err = <-errc:
 			if err == nil {
 				if ackErr := msg.Ack(); ackErr != nil {
-					//TODO: logging?
+					s.logger.Warn(logger.Stream, logger.StreamError, "failed to Ack a message", nil)
 				}
 				return
 			}
+			s.logger.Error(logger.Stream, logger.StreamError, "error while handling message", nil)
 			if nakErr := msg.NAck(); nakErr != nil {
-				//TODO: logging
+				s.logger.Warn(logger.Stream, logger.StreamError, "failed to Nack a message", nil)
 			}
 		case <-wCtx.Done():
 			//TODO: logging
