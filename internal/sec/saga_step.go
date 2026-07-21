@@ -1,0 +1,107 @@
+package sec
+
+import (
+	"context"
+
+	"github.com/esmaeel67/golang-modular-app/internal/am"
+	"github.com/esmaeel67/golang-modular-app/internal/ddd"
+)
+
+type (
+	StepActionFunc[T any]       func(ctx context.Context, data T) am.Command
+	StepReplyHandlerFunc[T any] func(ctx context.Context, data T, reply ddd.Reply) error
+
+	SagaStep[T any] interface {
+		Action(fn StepActionFunc[T]) SagaStep[T]
+		/*
+			In a Saga Pattern, a distributed transaction is broken into multiple steps. Each step has a compensating action	that is executed if any subsequent step fails.
+			This maintains data consistency without using distributed locks or two-phase commits.
+		*/
+		Compensation(fn StepActionFunc[T]) SagaStep[T] // rollback
+		OnActionReply(replyName string, fn StepReplyHandlerFunc[T]) SagaStep[T]
+		OnCompensationReply(replyName string, fn StepReplyHandlerFunc[T]) SagaStep[T]
+		isInvocable(compensating bool) bool // capable of being invoked, called, or executed.
+		execute(ctx context.Context, sagaCtx *SagaContext[T]) stepResult[T]
+		handle(ctx context.Context, sagaCtx *SagaContext[T], reply ddd.Reply) error
+	}
+
+	sagaStep[T any] struct {
+		actions  map[bool]StepActionFunc[T]
+		handlers map[bool]map[string]StepReplyHandlerFunc[T]
+	}
+
+	stepResult[T any] struct {
+		ctx *SagaContext[T]
+		cmd am.Command
+		err error
+	}
+)
+
+var _ SagaStep[any] = (*sagaStep[any])(nil)
+
+func (s *sagaStep[T]) Action(fn StepActionFunc[T]) SagaStep[T] {
+	s.actions[notCompensating] = fn
+	return s
+}
+
+func (s *sagaStep[T]) Compensation(fn StepActionFunc[T]) SagaStep[T] {
+	s.actions[isCompensating] = fn
+	return s
+}
+
+func (s *sagaStep[T]) OnActionReply(replyName string, fn StepReplyHandlerFunc[T]) SagaStep[T] {
+	s.handlers[notCompensating][replyName] = fn
+	return s
+}
+
+func (s *sagaStep[T]) OnCompensationReply(replyName string, fn StepReplyHandlerFunc[T]) SagaStep[T] {
+	s.handlers[isCompensating][replyName] = fn
+	return s
+}
+
+func (s sagaStep[T]) isInvocable(compensating bool) bool {
+	return s.actions[compensating] != nil
+}
+
+func (s sagaStep[T]) execute(ctx context.Context, sagaCtx *SagaContext[T]) stepResult[T] {
+	if action := s.actions[sagaCtx.Compensating]; action != nil {
+		return stepResult[T]{
+			ctx: sagaCtx,
+			cmd: action(ctx, sagaCtx.Data),
+		}
+	}
+	return stepResult[T]{ctx: sagaCtx}
+}
+
+func (s sagaStep[T]) handle(ctx context.Context, sagaCtx *SagaContext[T], reply ddd.Reply) error {
+	if handler := s.handlers[sagaCtx.Compensating][reply.ReplyName()]; handler != nil {
+		return handler(ctx, sagaCtx.Data, reply)
+	}
+	return nil
+}
+
+type StepOption[T any] func(step *sagaStep[T])
+
+func WithAction[T any](fn StepActionFunc[T]) StepOption[T] {
+	return func(step *sagaStep[T]) {
+		step.actions[notCompensating] = fn
+	}
+}
+
+func WithCompensation[T any](fn StepActionFunc[T]) StepOption[T] {
+	return func(step *sagaStep[T]) {
+		step.actions[isCompensating] = fn
+	}
+}
+
+func OnActionReply[T any](replyName string, fn StepReplyHandlerFunc[T]) StepOption[T] {
+	return func(step *sagaStep[T]) {
+		step.handlers[notCompensating][replyName] = fn
+	}
+}
+
+func OnCompensationReply[T any](replyName string, fn StepReplyHandlerFunc[T]) StepOption[T] {
+	return func(step *sagaStep[T]) {
+		step.handlers[isCompensating][replyName] = fn
+	}
+}
