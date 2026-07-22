@@ -21,7 +21,7 @@ func Registrations(reg registry.Registry) (err error) {
 	if err = serde.Register(&CreateShoppingList{}); err != nil {
 		return err
 	}
-
+	return
 }
 
 // commands
