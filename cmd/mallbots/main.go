@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/esmaeel67/golang-modular-app/baskets"
+	"github.com/esmaeel67/golang-modular-app/cosec"
 	"github.com/esmaeel67/golang-modular-app/customers"
 	"github.com/esmaeel67/golang-modular-app/depot"
 	"github.com/esmaeel67/golang-modular-app/internal/config"
@@ -86,6 +87,7 @@ func run() error {
 		&ordering.Module{},
 		&payments.Module{},
 		&search.Module{},
+		&cosec.Module{},
 	}
 
 	if err = m.startupModules(); err != nil {
