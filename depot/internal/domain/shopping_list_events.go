@@ -3,6 +3,7 @@ package domain
 const (
 	ShoppingListCreatedEvent   = "depot.ShoppingListCreated"
 	ShoppingListCanceledEvent  = "depot.ShoppingListCanceled"
+	ShoppingListInitiatedEvent = "depot.ShoppingListInitiated"
 	ShoppingListAssignedEvent  = "depot.ShoppingListAssigned"
 	ShoppingListCompletedEvent = "depot.ShoppingListCompleted"
 )
@@ -21,6 +22,14 @@ type ShoppingListCanceled struct {
 
 func (ShoppingListCanceled) Key() string {
 	return ShoppingListCanceledEvent
+}
+
+type ShoppingListInitiated struct {
+	ShoppingList *ShoppingList
+}
+
+func (ShoppingListInitiated) Key() string {
+	return ShoppingListInitiatedEvent
 }
 
 type ShoppingListAssigned struct {

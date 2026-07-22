@@ -9,8 +9,9 @@ const ShoppingListAggregate = "depot.ShoppingList"
 
 var (
 	ErrShoppingCannotBeCancelled = errors.Wrap(errors.ErrBadRequest, "the shopping list cannot be cancelled")
-	ErrShoppingCannotBeAssigned  = errors.Wrap(errors.ErrBadRequest, "the shopping list cannot bet assigned")
-	ErrShoppingCannotBeCompleted = errors.Wrap(errors.ErrBadRequest, "the shopping list cannot bet completed")
+	ErrShoppingCannotBeInitiated = errors.Wrap(errors.ErrBadRequest, "the shopping list cannot be initiated")
+	ErrShoppingCannotBeAssigned  = errors.Wrap(errors.ErrBadRequest, "the shopping list cannot be assigned")
+	ErrShoppingCannotBeCompleted = errors.Wrap(errors.ErrBadRequest, "the shopping list cannot be completed")
 )
 
 type ShoppingList struct {
@@ -38,6 +39,10 @@ func CreateShopping(id, orderID string) *ShoppingList {
 	})
 
 	return shoppingList
+}
+
+func (ShoppingList) Key() string {
+	return ShoppingListAggregate
 }
 
 func (sl *ShoppingList) AddItem(store *Store, product *Product, quantity int) error {
@@ -68,6 +73,22 @@ func (sl *ShoppingList) Cancel() error {
 	sl.Status = ShoppingListIsCancelled
 
 	sl.AddEvent(ShoppingListCanceledEvent, &ShoppingListCanceled{
+		ShoppingList: sl,
+	})
+
+	return nil
+}
+
+func (sl ShoppingList) isPending() bool {
+	return sl.Status == ShoppingListIsPending
+}
+
+func (sl *ShoppingList) Initiate() error {
+	if !sl.isPending() {
+		return ErrShoppingCannotBeInitiated
+	}
+
+	sl.AddEvent(ShoppingListInitiatedEvent, &ShoppingListInitiated{
 		ShoppingList: sl,
 	})
 
