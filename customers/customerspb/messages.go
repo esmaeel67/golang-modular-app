@@ -12,6 +12,10 @@ const (
 	CustomerSmsChangedEvent = "customersapi.CustomerSmsChanged"
 	CustomerEnabledEvent    = "customersapi.CustomerEnabled"
 	CustomerDisabledEvent   = "customersapi.CustomerDisabled"
+
+	CommandChannel = "mallbots.customers.commands"
+
+	AuthorizeCustomerCommand = "customersapi.AuthorizeCustomer"
 )
 
 func Registrations(reg registry.Registry) error {
@@ -33,6 +37,9 @@ func Registrations(reg registry.Registry) error {
 	if err := serde.Register(&CustomerDisabled{}); err != nil {
 		return err
 	}
+	if err := serde.Register(&AuthorizeCustomer{}); err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -49,4 +56,8 @@ func (*CustomerEnabled) Key() string {
 }
 func (*CustomerDisabled) Key() string {
 	return CustomerDisabledEvent
+}
+
+func (*AuthorizeCustomer) Key() string {
+	return AuthorizeCustomerCommand
 }

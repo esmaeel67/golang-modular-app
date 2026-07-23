@@ -3,3 +3,16 @@ syntax = "proto3";
 package paymentspb;
 
 option go_package = "github.com/esmaeel67/golang-modular-app/payments/paymentspb";
+
+// events
+message InvoicePaid {
+    string id=1;
+    string order_id=2;  
+}
+
+
+// commands
+message ConfirmPayment {
+    string id = 1;
+    double amount = 2;  
+}
