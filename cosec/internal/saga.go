@@ -7,7 +7,10 @@ import (
 	"github.com/esmaeel67/golang-modular-app/customers/customerspb"
 	"github.com/esmaeel67/golang-modular-app/depot/depotpb"
 	"github.com/esmaeel67/golang-modular-app/internal/am"
+	"github.com/esmaeel67/golang-modular-app/internal/ddd"
 	"github.com/esmaeel67/golang-modular-app/internal/sec"
+	"github.com/esmaeel67/golang-modular-app/ordering/orderingpb"
+	"github.com/esmaeel67/golang-modular-app/payments/paymentspb"
 )
 
 const CreateOrderSagaName = "cosec.CreateOrder"
@@ -28,12 +31,18 @@ func NewCreateOrderSaga() sec.Saga[*models.CreateOrderData] {
 	saga.AddStep().Action(saga.authorizeCustomer)
 
 	// 2. createShoppingList, -CancelShoppingList
+	saga.AddStep().Action(saga.createShoppingList).
+		OnActionReply(depotpb.CreatedShoppingListReply, saga.onCreatedShoppingListReply).
+		Compensation(saga.cancelShoppingList)
 
 	// 3. ConfirmPayment
+	saga.AddStep().Action(saga.confirmPayment)
 
 	// 4. InitiateShopping
+	saga.AddStep().Action(saga.initiateShopping)
 
 	// 5. ApproveOrder
+	saga.AddStep().Action(saga.approveOrder)
 
 	return saga
 }
@@ -57,5 +66,34 @@ func (s createOrderSaga) createShoppingList(ctx context.Context, data *models.Cr
 	return am.NewCommand(depotpb.CreateShoppingListCommand, depotpb.CommandChannel, &depotpb.CreateShoppingList{
 		OrderId: data.OrderID,
 		Items:   items,
+	})
+}
+
+func (s createOrderSaga) onCreatedShoppingListReply(ctx context.Context, data *models.CreateOrderData, reply ddd.Reply) error {
+	payload := reply.Payload().(*depotpb.CreatedShoppingList)
+
+	data.ShoppingID = payload.GetId()
+	return nil
+}
+
+func (s createOrderSaga) cancelShoppingList(ctx context.Context, data *models.CreateOrderData) am.Command {
+	return am.NewCommand(depotpb.CancelShoppingListCommand, depotpb.CommandChannel, &depotpb.CancelShoppingList{Id: data.ShoppingID})
+}
+
+func (s createOrderSaga) confirmPayment(ctx context.Context, data *models.CreateOrderData) am.Command {
+	return am.NewCommand(paymentspb.ConfirmPaymentCommand, paymentspb.CommandChannel, &paymentspb.ConfirmPayment{
+		Id:     data.PaymentID,
+		Amount: data.Total,
+	})
+}
+
+func (s createOrderSaga) initiateShopping(ctx context.Context, data *models.CreateOrderData) am.Command {
+	return am.NewCommand(depotpb.InitiateShoppingCommand, depotpb.CommandChannel, &depotpb.InitiateShopping{Id: data.ShoppingID})
+}
+
+func (s createOrderSaga) approveOrder(ctx context.Context, data *models.CreateOrderData) am.Command {
+	return am.NewCommand(orderingpb.ApproveOrderCommand, orderingpb.CommandChannel, &orderingpb.ApproveOrder{
+		Id:         data.OrderID,
+		ShoppingId: data.ShoppingID,
 	})
 }
