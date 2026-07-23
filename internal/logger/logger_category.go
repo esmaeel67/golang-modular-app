@@ -22,6 +22,7 @@ const (
 	Depot           Category = "Depot"
 	Search          Category = "Search"
 	Stream          Category = "Stream"
+	COSEC           Category = "COSEC"
 )
 
 const (
@@ -134,6 +135,8 @@ const (
 
 	// Stream
 	StreamError SubCategory = "StreamError"
+
+	HandleReply SubCategory = "HandleReply"
 )
 
 const (
