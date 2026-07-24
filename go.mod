@@ -3,6 +3,7 @@ module github.com/esmaeel67/golang-modular-app
 go 1.26.4
 
 require (
+	github.com/cucumber/godog v0.15.0
 	github.com/go-chi/chi/v5 v5.2.5
 	github.com/google/uuid v1.6.0
 	github.com/jackc/pgconn v1.14.3
@@ -23,8 +24,14 @@ require (
 )
 
 require (
+	github.com/cucumber/gherkin/go/v26 v26.2.0 // indirect
+	github.com/cucumber/messages/go/v21 v21.0.1 // indirect
 	github.com/fsnotify/fsnotify v1.9.0 // indirect
 	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect
+	github.com/gofrs/uuid v4.3.1+incompatible // indirect
+	github.com/hashicorp/go-immutable-radix v1.3.1 // indirect
+	github.com/hashicorp/go-memdb v1.3.4 // indirect
+	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
 	github.com/jackc/pgio v1.0.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
