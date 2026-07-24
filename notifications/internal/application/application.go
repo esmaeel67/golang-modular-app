@@ -38,15 +38,15 @@ func New(customers CustomerRepository) *Application {
 }
 
 func (a Application) NotifyOrderCreated(ctx context.Context, notify OrderCreated) error {
-
+	// not implemented
 	return nil
 }
 
 func (a Application) NotifyOrderCanceled(ctx context.Context, notify OrderCanceled) error {
-
+	// not implemented
 	return nil
 }
 func (a Application) NotifyOrderReady(ctx context.Context, notify OrderReady) error {
-
+	// not implemented
 	return nil
 }

@@ -5,7 +5,7 @@ import (
 
 	"github.com/esmaeel67/golang-modular-app/customers/customerspb"
 	"github.com/esmaeel67/golang-modular-app/notifications/internal/application"
-	models "github.com/esmaeel67/golang-modular-app/notifications/internal/model"
+	"github.com/esmaeel67/golang-modular-app/notifications/internal/models"
 	"google.golang.org/grpc"
 )
 
