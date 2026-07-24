@@ -85,7 +85,7 @@ func (a Application) CreateInvoice(ctx context.Context, create CreateInvoice) er
 		ID:      create.ID,
 		OrderID: create.OrderID,
 		Amount:  create.Amount,
-		Status:  models.InvoicePending,
+		Status:  models.InvoiceIsPending,
 	})
 }
 
@@ -106,11 +106,11 @@ func (a Application) PayInvoice(ctx context.Context, pay PayInvoice) error {
 		return err
 	}
 
-	if invoice.Status != models.InvoicePending {
+	if invoice.Status != models.InvoiceIsPending {
 		return errors.Wrap(errors.ErrBadRequest, "invoice cannot be paid for")
 	}
 
-	invoice.Status = models.InvoicePaid
+	invoice.Status = models.InvoiceIsPaid
 
 	if err = a.orders.Complete(ctx, invoice.ID, invoice.OrderID); err != nil {
 		return err
@@ -125,11 +125,11 @@ func (a Application) CancelInvoice(ctx context.Context, cancel CancelInvoice) er
 		return err
 	}
 
-	if invoice.Status != models.InvoicePending {
+	if invoice.Status != models.InvoiceIsPending {
 		return errors.Wrap(errors.ErrBadRequest, "invoice cannot be paid for")
 	}
 
-	invoice.Status = models.InvoiceCanceled
+	invoice.Status = models.InvoiceIsCanceled
 
 	return a.invoices.Update(ctx, invoice)
 }
