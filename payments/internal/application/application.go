@@ -3,6 +3,7 @@ package application
 import (
 	"context"
 
+	"github.com/esmaeel67/golang-modular-app/internal/ddd"
 	"github.com/esmaeel67/golang-modular-app/payments/internal/models"
 	"github.com/stackus/errors"
 )
@@ -48,19 +49,19 @@ type (
 	}
 
 	Application struct {
-		invoices InvoiceRepository
-		payments PaymentRepository
-		orders   OrderRepository
+		invoices  InvoiceRepository
+		payments  PaymentRepository
+		publisher ddd.EventPublisher[ddd.Event]
 	}
 )
 
 var _ App = (*Application)(nil)
 
-func New(invoices InvoiceRepository, payments PaymentRepository, orders OrderRepository) *Application {
+func New(invoices InvoiceRepository, payments PaymentRepository, publisher ddd.EventPublisher[ddd.Event]) *Application {
 	return &Application{
-		invoices: invoices,
-		payments: payments,
-		orders:   orders,
+		invoices:  invoices,
+		payments:  payments,
+		publisher: publisher,
 	}
 }
 
@@ -112,10 +113,12 @@ func (a Application) PayInvoice(ctx context.Context, pay PayInvoice) error {
 
 	invoice.Status = models.InvoiceIsPaid
 
-	if err = a.orders.Complete(ctx, invoice.ID, invoice.OrderID); err != nil {
+	if err = a.publisher.Publish(ctx, ddd.NewEvent(models.InvoicePaidEvent, &models.InvoicePaid{
+		ID:      invoice.ID,
+		OrderID: invoice.OrderID,
+	})); err != nil {
 		return err
 	}
-
 	return a.invoices.Update(ctx, invoice)
 }
 

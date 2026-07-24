@@ -136,7 +136,8 @@ const (
 	// Stream
 	StreamError SubCategory = "StreamError"
 
-	HandleReply SubCategory = "HandleReply"
+	HandleReply   SubCategory = "HandleReply"
+	HandleCommand SubCategory = "HandleCommand"
 )
 
 const (
