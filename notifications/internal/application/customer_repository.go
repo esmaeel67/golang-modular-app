@@ -3,7 +3,7 @@ package application
 import (
 	"context"
 
-	models "github.com/esmaeel67/golang-modular-app/notifications/internal/model"
+	"github.com/esmaeel67/golang-modular-app/notifications/internal/models"
 )
 
 type CustomerRepository interface {
