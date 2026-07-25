@@ -44,7 +44,7 @@ func (s *Stream) Publish(ctx context.Context, topicName string, rawMsg am.RawMes
 
 	var p nats.PubAckFuture
 	p, err = s.js.PublishMsgAsync(&nats.Msg{
-		Subject: topicName,
+		Subject: rawMsg.Subject(),
 		Data:    data,
 	}, nats.MsgId(rawMsg.ID()))
 	if err != nil {
